@@ -1,0 +1,82 @@
+{
+  "name": "cy-tree-viewer",
+  "author": "Keiichiro Ono <kono@ucsd.edu>",
+  "version": "v0.1.0",
+  "description": "React component for tree data visualization",
+  "license": "MIT",
+  "keywords": [
+    "cytoscape",
+    "visualization",
+    "graph",
+    "bioinformatics"
+  ],
+  "main": "build/CyTreeViewer.js",
+  "files": [
+    "webpack.config.babel.js",
+    ".preprocessor.js",
+    ".travis.yml",
+    ".babelrc",
+    "build/*",
+    "src/*"
+  ],
+  "scripts": {
+    "build": "./node_modules/.bin/webpack --progress --colors",
+    "clean": "rm build/*",
+    "lint": "eslint src/; exit 0",
+    "test": "eslint src/ && jest",
+    "coverage": "jest --coverage"
+  },
+  "homepage": "https://github.com/CyComponent/CyTreeViewer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CyComponent/CyTreeViewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CyComponent/CyTreeViewer/issues"
+  },
+  "dependencies": {
+    "d3-hierarchy": "^1.1.5",
+    "d3-interpolate": "^1.1.5",
+    "d3-scale": "^1.0.6",
+    "d3-selection": "^1.1.0",
+    "d3-transition": "^1.1.0"
+  },
+  "peerDependencies": {
+    "immutable": "^3.8.1",
+    "prop-types": "^15.5.10",
+    "react": "^15.6.1"
+  },
+  "devDependencies": {
+    "immutable": "^3.8.1",
+    "prop-types": "^15.5.10",
+    "react": "^15.6.1",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.3",
+    "babel-loader": "^7.1.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.5.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^4.6.1",
+    "jest": "^20.0.4",
+    "webpack": "^3.5.6",
+    "webpack-dev-server": "^2.7.1"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/.preprocessor.js"
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "extends": "eslint:recommended",
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    },
+    "env": {
+      "es6": true,
+      "browser": true
+    }
+  }
+}

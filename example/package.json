@@ -1,0 +1,27 @@
+{
+  "name": "tree-viewer-component-example",
+  "version": "0.0.1",
+  "description": "Simple web application uisng tree viewer component (w/o Redux)",
+  "main": "build/app.js",
+  "scripts": {
+    "dev": "webpack-dev-server --inline --content-base build",
+    "build": "./node_modules/.bin/webpack --progress --colors",
+    "clean": "rm -rf ./build"
+  },
+  "dependencies": {
+    "cy-tree-viewer": "^0.1.0",
+    "immutable": "^3.8.1",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "html-webpack-plugin": "^2.30.1",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.7.1"
+  }
+}
