@@ -23,7 +23,7 @@
     "build": "./node_modules/.bin/webpack --progress --colors",
     "clean": "rm build/*",
     "lint": "eslint src/; exit 0",
-    "test": "eslint src/ && jest",
+    "test": "./node_modules/.bin/jest",
     "coverage": "jest --coverage"
   },
   "homepage": "https://github.com/CyComponent/CyTreeViewer",
@@ -48,34 +48,27 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.1",
-    "babel-jest": "^22.0.6",
+    "babel-jest": "^22.1.0",
     "babel-loader": "^7.1.2",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "eslint": "^4.15.0",
-    "jest": "^21.2.1",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.11.0",
     "immutable": "^3.8.2",
+    "jest": "^21.2.1",
+    "jest-webpack-alias": "^3.3.3",
     "prop-types": "15.6.0",
-    "react": "^16.2.0"
+    "react": "^16.2.0",
+    "regenerator-runtime": "^0.11.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.0"
   },
   "jest": {
-    "scriptPreprocessor": "<rootDir>/.preprocessor.js"
-  },
-  "eslintConfig": {
-    "parser": "babel-eslint",
-    "extends": "eslint:recommended",
-    "ecmaFeatures": {
-      "jsx": true,
-      "modules": true
-    },
-    "env": {
-      "es6": true,
-      "browser": true
+    "transform": {
+      ".*": "<rootDir>/.preprocessor.js"
     }
   }
 }

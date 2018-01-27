@@ -1,9 +1,8 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
 const DEF_EVENT_HANDLERS = Immutable.fromJS({
-
   selectNodes: (nodeIds, properties = {}) => {
     console.log('selectNodes called.')
     console.log(nodeIds)
@@ -13,11 +12,11 @@ const DEF_EVENT_HANDLERS = Immutable.fromJS({
     console.log('selectEdges called.')
   },
 
-  deselectNodes: (nodeIds) => {
+  deselectNodes: nodeIds => {
     console.log('deselectNodes called.')
   },
 
-  deselectEdges: (edgeIds) => {
+  deselectEdges: edgeIds => {
     console.log('deselectEdges called.')
   },
 
@@ -26,25 +25,20 @@ const DEF_EVENT_HANDLERS = Immutable.fromJS({
   },
 
   commandFinished: (lastCommand, status = {}) => {
-    console.log('Command Finished: ' + lastCommand);
-    console.log(status);
-  },
-
+    console.log('Command Finished: ' + lastCommand)
+    console.log(status)
+  }
 })
 
-
 const CyTreeViewer = RendererComponent => {
-
   class Viewer extends Component {
-
     constructor(props) {
-      super(props);
+      super(props)
 
       this.state = {}
     }
 
-    componentWillMount() {
-    }
+    componentWillMount() {}
 
     componentWillReceiveProps(nextProps) {
       if (nextProps.tree !== this.props.tree) {
@@ -52,29 +46,21 @@ const CyTreeViewer = RendererComponent => {
     }
 
     render() {
-      console.log('-->Wrapper called')
-
-      const {tree} = this.props
+      const { tree } = this.props
       const handlers = this.buildEventHandlers()
 
       // If network data is not available, simply return empty tag
       if (tree === undefined || tree === null) {
-        return (<div></div>)
+        return <div />
       }
 
       console.log(tree)
 
-
-      return (
-        <RendererComponent
-          {...this.props}
-          eventHandlers={handlers}
-        />
-      )
+      return <RendererComponent {...this.props} eventHandlers={handlers} />
     }
 
     buildEventHandlers = () => {
-      const handlers = this.props.eventHandlers;
+      const handlers = this.props.eventHandlers
       if (handlers === undefined || handlers === null) {
         return DEF_EVENT_HANDLERS.toJS()
       }
@@ -85,6 +71,9 @@ const CyTreeViewer = RendererComponent => {
   }
 
   Viewer.propTypes = {
+
+    // Name of the renderer class, mainly for Styling
+    className: PropTypes.string,
 
     // Tree data in renderer's format
     tree: PropTypes.object,
@@ -103,7 +92,7 @@ const CyTreeViewer = RendererComponent => {
 
     // Command for renderer to be executed next.
     // This is null except when something is actually running in renderer
-    command: PropTypes.object,
+    command: PropTypes.object
   }
 
   Viewer.defaultProps = {
@@ -112,9 +101,10 @@ const CyTreeViewer = RendererComponent => {
     style: {
       width: '100%',
       height: '100%',
+      background: '#FFFFFF'
     },
     eventHandlers: DEF_EVENT_HANDLERS.toJS(),
-    rendererOptions: {},
+    rendererOptions: {}
   }
 
   Viewer.displayName = `Viewer(${getDisplayName(RendererComponent)})`
@@ -122,8 +112,7 @@ const CyTreeViewer = RendererComponent => {
   return Viewer
 }
 
-const getDisplayName = RendererComponent => (
+const getDisplayName = RendererComponent =>
   RendererComponent.displayName || RendererComponent.name || 'Component'
-)
 
 export default CyTreeViewer

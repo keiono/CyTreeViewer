@@ -1,23 +1,20 @@
-import React, {Component} from 'react'
-import {circlePacking} from './d3-circle-packing'
-
+import React, { Component } from 'react'
+import CirclePacking from './d3-circle-packing'
 
 /**
  * React component version of circle packing
  */
 class CirclePackingRenderer extends Component {
-
   componentDidMount() {
-    const svgTree = this.tree
-    circlePacking(this.props.tree, svgTree)
+
+
+
+    CirclePacking(this.props.tree, this.tree, this.props.className)
   }
 
   render() {
-    return (
-      <svg ref={tree => this.tree = tree}></svg>
-    )
+    return <div ref={tree => (this.tree = tree)} style={this.props.style} />
   }
 }
-
 
 export default CirclePackingRenderer

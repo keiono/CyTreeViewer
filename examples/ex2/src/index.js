@@ -1,25 +1,37 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+import './index.css'
+import App from './App'
+import registerServiceWorker from './registerServiceWorker'
+
+import cyjs2tree from './cyjs2tree'
 
 const TAG = 'root'
-const smallTree = 'https://gist.githubusercontent.com/keiono/2e9dee7cdedc5fce548acad71e21e052/raw/215cb50e7b0e71fb7200a846b551c31683a21e97/data1.json'
+const smallTree =
+  'https://gist.githubusercontent.com/keiono/2e9dee7cdedc5fce548acad71e21e052/raw/215cb50e7b0e71fb7200a846b551c31683a21e97/data1.json'
+
+const goCyjs =
+  'https://gist.githubusercontent.com/keiono/cf4a2347b705e7406269eaf8821e84bd/raw/3d8095c416bdf519d3c7c583078040101d1b0ae7/gotreeFull.cyjs'
+
+//Large
+// const uuid1 = '7ae8907a-b395-11e7-b629-0660b7976219'
+const uuid1 = 'c84ec0b0-02f4-11e8-bd69-0660b7976219'
+const CXTOOL_URL = 'http://35.203.154.74:3001/ndex2cyjs/'
 
 // Styles
 const appStyle = {
-  backgroundColor: '#eeeeee',
   color: '#EEEEEE',
   width: '100%',
-  height: '100%',
-};
+  height: '100%'
+}
 
 const style = {
   width: '100%',
   height: '100%',
-  backgroundColor: '#404040',
-};
+  display: 'flex',
+  justifyContent: 'center'
+}
 
 const titleStyle = {
   height: '2em',
@@ -27,8 +39,8 @@ const titleStyle = {
   fontWeight: 100,
   color: '#777777',
   paddingTop: '0.2em',
-  paddingLeft: '0.8em',
-};
+  paddingLeft: '0.8em'
+}
 
 const renderPage = tree => {
   ReactDOM.render(
@@ -43,11 +55,17 @@ const renderPage = tree => {
 }
 
 // Download the data and run the app
-fetch(smallTree)
-  .then(response => (response.json()))
-  .then(tree => {
-    renderPage(tree)
-  });
+fetch(CXTOOL_URL + uuid1 + '?server=test')
+  .then(response => response.json())
+  .then(cyjs => {
+    console.log(cyjs)
+    const root = cyjs2tree(cyjs)
+    console.log(root)
 
-registerServiceWorker();
+    return root
+  })
+  .then(root => {
+    renderPage(root)
+  })
 
+registerServiceWorker()
