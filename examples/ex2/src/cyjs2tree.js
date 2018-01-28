@@ -11,20 +11,21 @@ const cyjs2tree = cyjs => {
   const nodes = cyjs.elements.nodes
   let idx = nodes.length
 
-  const nodeMap = new Map()
+  const nodeMap = {}
 
   let root = null
   while (idx--) {
     const node = nodes[idx]
     const data = node.data
-    if (data['NodeType'] !== 'Gene' && !data['Label'].includes('Hidden')) {
+    // if (!data['Label'].includes('Hidden')) {
       const isRoot = nodes[idx].data.isRoot
       if (isRoot) {
         root = nodes[idx]
       }
 
-      nodeMap.set(nodes[idx].data.id, nodes[idx].data.name)
-    }
+      const nodeData = nodes[idx].data
+      nodeMap[nodeData.id] = nodeData
+    // }
   }
 
   console.log(root)
@@ -48,23 +49,24 @@ const transform = (rootId, edges, nodeMap) => {
   const table = []
 
   table.push({
-    name: nodeMap.get(rootId),
+    name: nodeMap[rootId].name,
     parent: ''
   })
 
   edges.forEach(edge => {
 
-    const source = nodeMap.get(edge.data.source)
-    const target = nodeMap.get(edge.data.target)
+    const source = nodeMap[edge.data.source]
+    const target = nodeMap[edge.data.target]
 
     if(source !== undefined && target !== undefined) {
       table.push({
-        name: source,
-        parent: target
+        name: source.name,
+        parent: target.name,
+        value: source.Size
+
       })
 
     } else {
-      console.log('!!!!!!!!!!! leaf')
     }
 
   })

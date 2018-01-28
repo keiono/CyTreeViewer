@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import CirclePacking from './d3-circle-packing'
 
+
 /**
  * React component version of circle packing
  */
@@ -13,7 +14,9 @@ class CirclePackingRenderer extends Component {
   }
 
   render() {
-    return <div ref={tree => (this.tree = tree)} style={this.props.style} />
+    return (
+        <div ref={tree => (this.tree = tree)} style={this.props.style} />
+    )
   }
 }
 

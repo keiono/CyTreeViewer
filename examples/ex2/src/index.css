@@ -7,3 +7,35 @@ body {
 .circle-packing {
   background-color: #FFFFFF !important;
 }
+
+.node {
+  cursor: pointer;
+}
+
+.label {
+  font: 12px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+}
+
+.label,
+.node--root,
+.node--leaf {
+  pointer-events: none;
+}
+
+.label--leaf {
+  fill: orange;
+  font-size: 30px;
+}
+
+.label--root {
+  fill: red;
+  font-size: 130px;
+}
+
+.node:hover {
+  stroke: #555555;
+  opacity: 1;
+  stroke-width: 4px;
+}
+

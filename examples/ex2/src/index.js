@@ -17,6 +17,10 @@ const goCyjs =
 //Large
 // const uuid1 = '7ae8907a-b395-11e7-b629-0660b7976219'
 const uuid1 = 'c84ec0b0-02f4-11e8-bd69-0660b7976219'
+const uuidFan = '68f1cbdf-fb58-11e7-9efe-0660b7976219'
+
+const uuidHuge = '86ef5567-fced-11e7-bd69-0660b7976219'
+
 const CXTOOL_URL = 'http://35.203.154.74:3001/ndex2cyjs/'
 
 // Styles
@@ -37,7 +41,7 @@ const titleStyle = {
   height: '2em',
   margin: 0,
   fontWeight: 100,
-  color: '#777777',
+  color: '#555555',
   paddingTop: '0.2em',
   paddingLeft: '0.8em'
 }
@@ -49,13 +53,14 @@ const renderPage = tree => {
       style={style}
       appStyle={appStyle}
       titleStyle={titleStyle}
+      uuid={uuid1}
     />,
     document.getElementById(TAG)
   )
 }
 
 // Download the data and run the app
-fetch(CXTOOL_URL + uuid1 + '?server=test')
+fetch(CXTOOL_URL + uuidFan + '?server=test')
   .then(response => response.json())
   .then(cyjs => {
     console.log(cyjs)
