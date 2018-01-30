@@ -1,2 +1,2 @@
 export CyTreeViewer from './CyTreeViewer'
-export CirclePackingRenderer from './CirclePackingRenderer/index'
+export CirclePackingRenderer from './CirclePackingRenderer'

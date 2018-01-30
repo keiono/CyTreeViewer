@@ -1,6 +1,5 @@
-const webpack = require('webpack');
-const path = require('path');
-
+const webpack = require('webpack')
+const path = require('path')
 
 export default () => ({
   devtool: 'cheap-module-eval-source-map',
@@ -12,10 +11,10 @@ export default () => ({
   },
 
   output: {
-    path: path.join(__dirname, "build"),
-    library: "CyTreeViewer",
-    libraryTarget: "umd",
-    filename: "CyTreeViewer.js"
+    path: path.join(__dirname, 'build'),
+    library: 'CyTreeViewer',
+    libraryTarget: 'umd',
+    filename: 'CyTreeViewer.js'
   },
 
   module: {
@@ -30,7 +29,7 @@ export default () => ({
     ]
   },
   externals: {
-    'react': {
+    react: {
       commonjs: 'react',
       commonjs2: 'react',
       amd: 'react',
@@ -42,7 +41,7 @@ export default () => ({
       amd: 'prop-types',
       root: 'PropTypes'
     },
-    'immutable': {
+    immutable: {
       commonjs: 'immutable',
       commonjs2: 'immutable',
       amd: 'immutable',
@@ -53,7 +52,5 @@ export default () => ({
     extensions: ['.js', '.jsx']
   },
 
-  plugins: [
-    new webpack.NamedModulesPlugin()
-  ]
-});
+  plugins: [new webpack.NamedModulesPlugin()]
+})

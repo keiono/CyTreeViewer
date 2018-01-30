@@ -6,11 +6,7 @@ import * as d3Transition from 'd3-transition'
 import * as d3Color from 'd3-color'
 
 const MARGIN = 50
-const BACKGROUND = '#EFEFEF'
-
 const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8D4')]
-
-let selected = null
 
 const getColorMap = () =>
   d3Scale
@@ -27,7 +23,8 @@ const getSvg = (svgTree, size) =>
     .attr('height', size)
     .attr('class', 'circle-packing')
 
-const CirclePacking = (tree, svgTree, size) => {
+
+const CirclePacking = (tree, svgTree, size, props) => {
   console.log(size)
   const svg = getSvg(svgTree, size)
 
@@ -85,11 +82,16 @@ const CirclePacking = (tree, svgTree, size) => {
         return 'rgba(255, 255, 255, 0.3)'
       }
     })
-    .on('click', function(d) {
+    .on('click', (d) => {
+
+      props.eventHandlers.selectNode(d.data.id, d)
+
       if (focus !== d) zoom(d), d3Selection.event.stopPropagation()
     })
-  .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes))
-  // .on("mouseout", handleMouseOut);
+  .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
+  .on("mouseout", () => {
+    props.eventHandlers.hoverOnNode(null, null)
+  })
 
   const text = g
     .selectAll('text')
@@ -233,11 +235,13 @@ const getFontDisplay = (d, root) => {
   }
 }
 
-const handleMouseOver = (d, i, nodes) => {
+const handleMouseOver = (d, i, nodes, props) => {
   // console.log('HOVER')
   // console.log(d)
   // console.log(i)
   // console.log(nodes)
+
+  props.eventHandlers.hoverOnNode(d.data.id, d.data)
 
   d3Selection.selectAll('text').style('fill', d2 => {
     if (d2.data === undefined) {

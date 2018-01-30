@@ -3,25 +3,19 @@ import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
 const DEF_EVENT_HANDLERS = Immutable.fromJS({
-  selectNodes: (nodeIds, properties = {}) => {
-    console.log('selectNodes called.')
-    console.log(nodeIds)
+  selectNode: (nodeId, properties = {}) => {
+    console.log('selectNode called.')
+    console.log(nodeId)
+    console.log(properties)
   },
 
-  selectEdges: (edgeIds, properties = {}) => {
-    console.log('selectEdges called.')
+  hoverOnNode: (nodeId, properties) => {
+    console.log('hover called.')
+    console.log(nodeId)
   },
 
-  deselectNodes: nodeIds => {
-    console.log('deselectNodes called.')
-  },
-
-  deselectEdges: edgeIds => {
-    console.log('deselectEdges called.')
-  },
-
-  changeNodePositions: nodePositions => {
-    console.log('changeNodePositions called.')
+  deselectNode: nodeId => {
+    console.log('deselectNode called.')
   },
 
   commandFinished: (lastCommand, status = {}) => {
@@ -34,27 +28,17 @@ const CyTreeViewer = RendererComponent => {
   class Viewer extends Component {
     constructor(props) {
       super(props)
-
       this.state = {}
-    }
-
-    componentWillMount() {}
-
-    componentWillReceiveProps(nextProps) {
-      if (nextProps.tree !== this.props.tree) {
-      }
     }
 
     render() {
       const { tree } = this.props
       const handlers = this.buildEventHandlers()
 
-      // If network data is not available, simply return empty tag
+      // If tree data is not available, simply return empty tag
       if (tree === undefined || tree === null) {
         return <div />
       }
-
-      console.log(tree)
 
       return <RendererComponent {...this.props} eventHandlers={handlers} />
     }
@@ -71,20 +55,13 @@ const CyTreeViewer = RendererComponent => {
   }
 
   Viewer.propTypes = {
-
-    // Name of the renderer class, mainly for Styling
-    className: PropTypes.string,
-
     // Tree data in renderer's format
     tree: PropTypes.object,
 
     // Event handlers for actions for the network, such as selection.
     eventHandlers: PropTypes.object.isRequired,
 
-    // Style of the area used by the renderer
-    style: PropTypes.object,
-
-    // Style for the network, which is RENDERER DEPENDENT, not CSS
+    // Style for the tree visualization, which is RENDERER DEPENDENT, not CSS
     treeStyle: PropTypes.object,
 
     // Optional parameters for the renderer
@@ -98,11 +75,6 @@ const CyTreeViewer = RendererComponent => {
   Viewer.defaultProps = {
     tree: null,
     command: null,
-    style: {
-      width: '100%',
-      height: '100%',
-      background: '#FFFFFF'
-    },
     eventHandlers: DEF_EVENT_HANDLERS.toJS(),
     rendererOptions: {}
   }

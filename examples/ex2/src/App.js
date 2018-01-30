@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { CirclePackingRenderer, CyTreeViewer } from 'cy-tree-viewer'
 import ColorBar from './ColorBar'
 import * as style from './style.css'
@@ -7,7 +7,7 @@ const TreeViewer = CyTreeViewer(CirclePackingRenderer)
 
 const height = window.innerHeight * 0.9
 
-const containerStyle ={
+const containerStyle = {
   height: height,
   width: '100%',
   display: 'flex',
@@ -16,26 +16,55 @@ const containerStyle ={
 }
 
 // React Application implemented as a stateless functional component
-const App = props => (
-  <div style={props.appStyle}>
-    {/*<h2 style={props.titleStyle}>NDEx UUID: {props.uuid}</h2>*/}
 
-    <div style={containerStyle}>
+class App extends Component {
+  state = {
+    selected: '',
+    hover: ''
+  }
 
+  componentDidMount() {}
 
-      <TreeViewer
-        {...props}
-        size={height}
-      />
+  render() {
+    return (
+      <div style={this.props.appStyle}>
+        <h2 style={this.props.titleStyle}>Selected: {this.state.selected}</h2>
+        <h2 style={this.props.titleStyle}>Hover: {this.state.hover}</h2>
 
-      <ColorBar
-        width={20}
-        height={height}
-        depth={2}
-        tree={props.tree}
-      />
-    </div>
-  </div>
-)
+        <div style={containerStyle}>
+          <TreeViewer
+            {...this.props}
+            eventHandlers={this.getEventHandlers()}
+            size={height}
+          />
+
+          <ColorBar width={20} height={height} depth={2} tree={this.props.tree} />
+        </div>
+      </div>
+    )
+  }
+
+  getEventHandlers = () => {
+    const selectNode = (id, data) => {
+      console.log('Seleected = ' + id)
+      this.setState({
+       selected: id
+      })
+    }
+
+    const hoverOnNode = (id, data) => {
+      console.log('hover = ' + id)
+      this.setState({
+        hover: id
+      })
+
+    }
+
+    return {
+      selectNode,
+      hoverOnNode
+    }
+  }
+}
 
 export default App
