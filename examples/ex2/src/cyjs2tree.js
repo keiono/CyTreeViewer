@@ -18,13 +18,13 @@ const cyjs2tree = cyjs => {
     const node = nodes[idx]
     const data = node.data
     // if (!data['Label'].includes('Hidden')) {
-      const isRoot = nodes[idx].data.isRoot
-      if (isRoot) {
-        root = nodes[idx]
-      }
+    const isRoot = nodes[idx].data.isRoot
+    if (isRoot) {
+      root = nodes[idx]
+    }
 
-      const nodeData = nodes[idx].data
-      nodeMap[nodeData.id] = nodeData
+    const nodeData = nodes[idx].data
+    nodeMap[nodeData.id] = nodeData
     // }
   }
 
@@ -54,21 +54,18 @@ const transform = (rootId, edges, nodeMap) => {
   })
 
   edges.forEach(edge => {
-
     const source = nodeMap[edge.data.source]
     const target = nodeMap[edge.data.target]
 
-    if(source !== undefined && target !== undefined) {
+    if (source !== undefined && target !== undefined) {
       table.push({
         name: source.name,
         parent: target.name,
-        value: source.Size
-
+        value: source.Size,
+        nodeType: source.NodeType
       })
-
     } else {
     }
-
   })
 
   return table

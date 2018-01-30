@@ -2,10 +2,11 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  background-color: #EFEFEF;
 }
 
 .circle-packing {
-  background-color: #FFFFFF !important;
+  background-color: #EFEFEF !important;
 }
 
 .node {
@@ -18,23 +19,12 @@ body {
 }
 
 .label,
-.node--root,
-.node--leaf {
+.node--root {
   pointer-events: none;
 }
 
-.label--leaf {
-  fill: orange;
-  font-size: 30px;
-}
-
-.label--root {
-  fill: red;
-  font-size: 130px;
-}
-
 .node:hover {
-  stroke: #555555;
+  stroke: orange;
   opacity: 1;
   stroke-width: 4px;
 }
