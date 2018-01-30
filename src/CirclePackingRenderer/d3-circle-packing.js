@@ -8,7 +8,7 @@ import * as d3Color from 'd3-color'
 const MARGIN = 50
 const BACKGROUND = '#EFEFEF'
 
-const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('teal')]
+const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8D4')]
 
 let selected = null
 
@@ -82,13 +82,13 @@ const CirclePacking = (tree, svgTree, size) => {
           return colorMapper(d.depth)
         }
 
-        return 'rgba(255, 255, 255, 0.2)'
+        return 'rgba(255, 255, 255, 0.3)'
       }
     })
     .on('click', function(d) {
       if (focus !== d) zoom(d), d3Selection.event.stopPropagation()
     })
-    .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes))
+  .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes))
   // .on("mouseout", handleMouseOut);
 
   const text = g
@@ -122,8 +122,6 @@ const CirclePacking = (tree, svgTree, size) => {
   })
 
   const zoom = d => {
-    console.log('-----------------> ZOOM!!!!!!!!!!')
-    console.log(d)
     focus = d
 
     const transition = d3Transition
@@ -141,15 +139,29 @@ const CirclePacking = (tree, svgTree, size) => {
       })
 
     const text = transition.selectAll('text')
-    const filtered = text.filter(function(d) {
-      return d.parent === focus || this.style.display === 'inline'
-    })
+
+    let filtered
+    if (d.height === 0) {
+      filtered = text.filter(function(d) {
+        this.style.display = 'inline'
+
+        return d.parent === focus
+      })
+    } else {
+      filtered = text.filter(function(d) {
+        return d.parent === focus || this.style.display === 'inline'
+      })
+    }
 
     console.log(filtered)
 
     filtered
       .style('fill-opacity', function(d) {
         if (d.parent === focus) {
+          if(d.height === 0) {
+            return 1
+          }
+
           if (d.parent === root && d.children === undefined) {
             return 0
           }
@@ -199,8 +211,8 @@ const getFontSize = d => {
   const circleD = d.r
 
   const baseFontSize = circleD
-  if (baseFontSize >= 45) {
-    return 45
+  if (baseFontSize >= 50) {
+    return 50
   } else if (baseFontSize <= 12) {
     return 12
   } else {
