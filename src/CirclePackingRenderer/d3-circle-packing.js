@@ -23,7 +23,6 @@ const getSvg = (svgTree, size) =>
     .attr('height', size)
     .attr('class', 'circle-packing')
 
-
 const CirclePacking = (tree, svgTree, size, props) => {
   console.log(size)
   const svg = getSvg(svgTree, size)
@@ -75,23 +74,24 @@ const CirclePacking = (tree, svgTree, size, props) => {
       if (d.children) {
         return colorMapper(d.depth)
       } else {
-        if (d.data.data.nodeType !== 'Gene') {
+        if (d.data.data.NodeType !== 'Gene') {
           return colorMapper(d.depth)
         }
 
         return 'rgba(255, 255, 255, 0.3)'
       }
     })
-    .on('click', (d) => {
-
-      props.eventHandlers.selectNode(d.data.id, d)
+    .on('click', d => {
+      if(d === undefined) {
+        return
+      }
 
       if (focus !== d) zoom(d), d3Selection.event.stopPropagation()
     })
-  .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
-  .on("mouseout", () => {
-    props.eventHandlers.hoverOnNode(null, null)
-  })
+    .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
+    .on('mouseout', () => {
+      props.eventHandlers.hoverOnNode(null, null)
+    })
 
   const text = g
     .selectAll('text')
@@ -100,7 +100,6 @@ const CirclePacking = (tree, svgTree, size, props) => {
     .append('text')
     .style('fill', '#FFFFFF')
     .style('text-anchor', 'middle')
-
     .attr('class', 'label')
     .style('fill-opacity', function(d) {
       return d.parent === root ? 1 : 0
@@ -113,14 +112,16 @@ const CirclePacking = (tree, svgTree, size, props) => {
     //   return d.parent === root ? 1 : 0
     // })
     // .style('display', d => getFontDisplay(d, root))
-    .text(d => d.data.id)
+    .text(d => d.data.data.Label)
 
   const node = g.selectAll('circle,text')
 
   svg.style('background', colorMapper(-1)).on('click', e => {
     console.log('------------------- CLICK')
-    console.log(e)
-    zoom(root)
+    console.log(root)
+    if(root !== undefined) {
+      zoom(root)
+    }
   })
 
   const zoom = d => {
@@ -151,6 +152,11 @@ const CirclePacking = (tree, svgTree, size, props) => {
       })
     } else {
       filtered = text.filter(function(d) {
+
+        if(d=== undefined) {
+          return false
+        }
+
         return d.parent === focus || this.style.display === 'inline'
       })
     }
@@ -160,7 +166,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
     filtered
       .style('fill-opacity', function(d) {
         if (d.parent === focus) {
-          if(d.height === 0) {
+          if (d.height === 0) {
             return 1
           }
 
@@ -191,6 +197,11 @@ const CirclePacking = (tree, svgTree, size, props) => {
           }
         }
       })
+
+    console.log("==================About to call")
+    console.log(d)
+    if(d !== root)
+      props.eventHandlers.selectNode(d.data.id, d.data.data.props)
   }
 
   const zoomTo = v => {
@@ -236,15 +247,11 @@ const getFontDisplay = (d, root) => {
 }
 
 const handleMouseOver = (d, i, nodes, props) => {
-  // console.log('HOVER')
-  // console.log(d)
-  // console.log(i)
-  // console.log(nodes)
 
-  props.eventHandlers.hoverOnNode(d.data.id, d.data)
+  props.eventHandlers.hoverOnNode(d.data.id, d.data.data)
 
   d3Selection.selectAll('text').style('fill', d2 => {
-    if (d2.data === undefined) {
+    if (d2 === undefined || d2.data === undefined) {
       return '#00FF00'
     }
     if (d.data.id === d2.data.id) {
