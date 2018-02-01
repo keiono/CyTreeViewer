@@ -4,6 +4,7 @@ import * as d3Interpolate from 'd3-interpolate'
 import * as d3Hierarchy from 'd3-hierarchy'
 import * as d3Transition from 'd3-transition'
 import * as d3Color from 'd3-color'
+import * as d3Zoom from 'd3-zoom'
 
 const MARGIN = 50
 const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8D4')]
@@ -24,8 +25,13 @@ const getSvg = (svgTree, size) =>
     .attr('class', 'circle-packing')
 
 const CirclePacking = (tree, svgTree, size, props) => {
-  console.log(size)
   const svg = getSvg(svgTree, size)
+
+  // svg.call(
+  //   d3Zoom.zoom().on('zoom', function() {
+  //     svg.attr('transform', d3Selection.event.transform)
+  //   })
+  // )
 
   const diameter = +svg.attr('height')
   const colorMapper = getColorMap()
@@ -82,7 +88,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
       }
     })
     .on('click', d => {
-      if(d === undefined) {
+      if (d === undefined) {
         return
       }
 
@@ -119,7 +125,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
   svg.style('background', colorMapper(-1)).on('click', e => {
     console.log('------------------- CLICK')
     console.log(root)
-    if(root !== undefined) {
+    if (root !== undefined) {
       zoom(root)
     }
   })
@@ -152,8 +158,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
       })
     } else {
       filtered = text.filter(function(d) {
-
-        if(d=== undefined) {
+        if (d === undefined) {
           return false
         }
 
@@ -198,10 +203,9 @@ const CirclePacking = (tree, svgTree, size, props) => {
         }
       })
 
-    console.log("==================About to call")
+    console.log('==================About to call')
     console.log(d)
-    if(d !== root)
-      props.eventHandlers.selectNode(d.data.id, d.data.data.props)
+    if (d !== root) props.eventHandlers.selectNode(d.data.id, d.data.data.props)
   }
 
   const zoomTo = v => {
@@ -247,12 +251,11 @@ const getFontDisplay = (d, root) => {
 }
 
 const handleMouseOver = (d, i, nodes, props) => {
-
   props.eventHandlers.hoverOnNode(d.data.id, d.data.data)
 
   d3Selection.selectAll('text').style('fill', d2 => {
     if (d2 === undefined || d2.data === undefined) {
-      return '#00FF00'
+      return null
     }
     if (d.data.id === d2.data.id) {
       return 'orange'
