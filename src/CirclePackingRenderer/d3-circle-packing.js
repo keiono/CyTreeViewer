@@ -16,13 +16,20 @@ const getColorMap = () =>
     .range(COLOR_RANGE)
     .interpolate(d3Interpolate.interpolateHcl)
 
-const getSvg = (svgTree, size) =>
+const getSvg = (svgTree, size) => {
   d3Selection
+    .select('#circle-main')
+    .remove()
+
+  return d3Selection
     .select(svgTree)
     .append('svg')
     .attr('width', size)
     .attr('height', size)
     .attr('class', 'circle-packing')
+    .attr('id', 'circle-main')
+}
+
 
 const CirclePacking = (tree, svgTree, size, props) => {
   const svg = getSvg(svgTree, size)

@@ -14,6 +14,15 @@ class CirclePackingRenderer extends Component {
     CirclePacking(this.props.tree, this.tree, size, this.props)
   }
 
+  componentWillReceiveProps(nextProps) {
+    const newSize = nextProps.size
+
+    if(this.props.size !== newSize) {
+      console.log('REDRAW---------------------------------')
+      CirclePacking(nextProps.tree, this.tree, newSize, nextProps)
+    }
+  }
+
   render() {
     return <div ref={tree => (this.tree = tree)} />
   }

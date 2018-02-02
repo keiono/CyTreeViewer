@@ -59,7 +59,7 @@ const renderPage = tree => {
 }
 
 // Download the data and run the app
-fetch(CXTOOL_URL + uuidFan + '?server=test')
+fetch(CXTOOL_URL + uuid2 + '?server=test')
   .then(response => response.json())
   .then(cyjs => {
     console.log(cyjs)
