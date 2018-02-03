@@ -317,6 +317,19 @@ const wrap = (text, width) => {
     let word
     let line = []
 
+    const wordCount = words.length
+    // Case 1: single word
+
+    if(wordCount === 1) {
+      text.text(words[0])
+
+      return
+    }
+
+
+    // Case 2: multiple words
+
+
     // let tspan = text.text(null).append('tspan')
 
     let tspan
