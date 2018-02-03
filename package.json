@@ -22,7 +22,7 @@
   "scripts": {
     "build": "./node_modules/.bin/webpack --progress --colors",
     "clean": "rm build/*",
-    "lint": "eslint src/; exit 0",
+    "lint": "eslint src/ --fix; exit 0",
     "test": "./node_modules/.bin/jest",
     "coverage": "jest --coverage"
   },
@@ -62,7 +62,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "eslint": "^4.16.0",
     "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-prettier": "^2.5.0",
+    "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.6.1",
     "immutable": "^3.8.2",
     "jest": "^21.2.1",

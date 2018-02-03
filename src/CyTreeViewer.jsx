@@ -9,7 +9,7 @@ const DEF_EVENT_HANDLERS = Immutable.fromJS({
     console.log(properties)
   },
 
-  hoverOnNode: (nodeId, properties) => {
+  hoverOnNode: (nodeId, properties = {}) => {
     console.log('hover called.')
     console.log(nodeId)
   },

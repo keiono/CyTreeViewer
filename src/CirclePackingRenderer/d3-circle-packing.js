@@ -4,7 +4,8 @@ import * as d3Interpolate from 'd3-interpolate'
 import * as d3Hierarchy from 'd3-hierarchy'
 import * as d3Transition from 'd3-transition'
 import * as d3Color from 'd3-color'
-import * as d3Zoom from 'd3-zoom'
+
+const COMPONENT_ID = 'circle-main'
 
 const MARGIN = 50
 const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8D4')]
@@ -17,9 +18,7 @@ const getColorMap = () =>
     .interpolate(d3Interpolate.interpolateHcl)
 
 const getSvg = (svgTree, size) => {
-  d3Selection
-    .select('#circle-main')
-    .remove()
+  d3Selection.select('#' + COMPONENT_ID).remove()
 
   return d3Selection
     .select(svgTree)
@@ -27,32 +26,11 @@ const getSvg = (svgTree, size) => {
     .attr('width', size)
     .attr('height', size)
     .attr('class', 'circle-packing')
-    .attr('id', 'circle-main')
+    .attr('id', COMPONENT_ID)
 }
 
-
-const CirclePacking = (tree, svgTree, size, props) => {
-  const svg = getSvg(svgTree, size)
-
-  // svg.call(
-  //   d3Zoom.zoom().on('zoom', function() {
-  //     svg.attr('transform', d3Selection.event.transform)
-  //   })
-  // )
-
-  const diameter = +svg.attr('height')
-  const colorMapper = getColorMap()
-
-  const g = svg
-    .append('g')
-    .attr('transform', 'translate(' + diameter / 2 + ',' + diameter / 2 + ')')
-
-  const pack = d3Hierarchy
-    .pack()
-    .size([diameter - MARGIN, diameter - MARGIN])
-    .padding(1)
-
-  let root = d3Hierarchy
+const getRoot = tree => {
+  return d3Hierarchy
     .hierarchy(tree)
     .sum(d => {
       const value = d.data.value
@@ -63,19 +41,52 @@ const CirclePacking = (tree, svgTree, size, props) => {
       }
     })
     .sort((a, b) => b.value - a.value)
+}
+
+const handleMouseOut = (d, i, nodes, eventHandlers) => {
+  eventHandlers.hoverOnNode(null, null)
+}
+
+const CirclePacking = (tree, svgTree, size, props) => {
+  const svg = getSvg(svgTree, size)
+
+  const diameter = +svg.attr('height')
+  const colorMapper = getColorMap()
+
+  // Base setting.
+  const g = svg
+    .append('g')
+    .attr('transform', 'translate(' + diameter / 2 + ',' + diameter / 2 + ')')
+
+  const pack = d3Hierarchy
+    .pack()
+    .size([diameter - MARGIN, diameter - MARGIN])
+    .padding(1)
+
+  let root = getRoot(tree)
 
   // Set initial focus to the root
   let focus = root
 
-  // Get all of children
+  // Get all children
   let nodes = pack(root).descendants()
 
   let view
 
+  console.log('----------- Initial setup --------')
+  console.log(root)
+  console.log(nodes)
+
+  const filtered = nodes.filter((d, i) => d.height !== 0)
+
+  console.log(nodes)
+  console.log(filtered)
+
   const circle = g
     .selectAll('circle')
-    .data(nodes)
+    .data(filtered)
     .enter()
+
     .append('circle')
     .attr('id', d => d.data.id)
     .attr('class', function(d) {
@@ -108,7 +119,8 @@ const CirclePacking = (tree, svgTree, size, props) => {
 
   const text = g
     .selectAll('text')
-    .data(nodes)
+    // .data(nodes)
+    .data(filtered)
     .enter()
     .append('text')
     .style('fill', '#FFFFFF')
@@ -121,11 +133,25 @@ const CirclePacking = (tree, svgTree, size, props) => {
       return d.parent === root && d.children !== undefined ? 'inline' : 'none'
     })
     .style('font-size', d => getFontSize(d))
+    // .style('font-size', '1em')
     // .style('fill-opacity', function(d) {
     //   return d.parent === root ? 1 : 0
     // })
     // .style('display', d => getFontDisplay(d, root))
-    .text(d => d.data.data.Label)
+    // .text(d => d)
+    // .text(d => d.data.data.Label)
+    .call(wrap, 100)
+  // .style('font-size', (d, i, nodes) => {
+  //   console.log(nodes[i].getComputedTextLength())
+  //
+  //   const dir = 2 * d.r
+  //
+  //   return dir / d.data.data.Label.length
+  //
+  //   // Math.min(2 * d.r, (2 * d.r - 8) / nodes[i].getComputedTextLength() * 12) +
+  //   // 'px'
+  // })
+  // .attr('dy', '.35em')
 
   const node = g.selectAll('circle,text')
 
@@ -212,6 +238,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
 
     console.log('==================About to call')
     console.log(d)
+
     if (d !== root) props.eventHandlers.selectNode(d.data.id, d.data.data.props)
   }
 
@@ -232,13 +259,14 @@ const CirclePacking = (tree, svgTree, size, props) => {
 }
 
 const getFontSize = d => {
-  const circleD = d.r
+  const circleD = d.r / 2
 
   const baseFontSize = circleD
-  if (baseFontSize >= 50) {
-    return 50
-  } else if (baseFontSize <= 12) {
-    return 12
+
+  if (baseFontSize >= 30) {
+    return 30
+  } else if (baseFontSize <= 10) {
+    return 10
   } else {
     return baseFontSize
   }
@@ -268,6 +296,40 @@ const handleMouseOver = (d, i, nodes, props) => {
       return 'orange'
     } else {
       return '#FFFFFF'
+    }
+  })
+}
+
+const wrap = (text, width) => {
+  console.log(text)
+
+  text.each(function() {
+    const text = d3Selection.select(this)
+
+    const labelText = text.data()[0].data.data.Label
+    const words = labelText.split(/\s+/).reverse()
+
+    let lineNumber = 0
+    const lineHeight = 4
+
+    const data = text.data()[0]
+
+    let word
+    let line = []
+
+    // let tspan = text.text(null).append('tspan')
+
+    let tspan
+    while ((word = words.pop())) {
+      tspan = text
+        .append('tspan')
+        .attr('x', 0)
+        .attr('y', -data.r / 2)
+        .attr('dy', (lineNumber * 1.1) + 'em')
+        .text(word)
+
+      lineNumber++
+
     }
   })
 }
