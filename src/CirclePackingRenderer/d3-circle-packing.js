@@ -4,11 +4,16 @@ import * as d3Interpolate from 'd3-interpolate'
 import * as d3Hierarchy from 'd3-hierarchy'
 import * as d3Transition from 'd3-transition'
 import * as d3Color from 'd3-color'
+import * as d3Zoom from 'd3-zoom'
 
 const COMPONENT_ID = 'circle-main'
 
 const MARGIN = 50
 const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8D4')]
+
+const MAX_DEPTH = 2
+
+let currentDepth = 0
 
 const getColorMap = () =>
   d3Scale
@@ -58,6 +63,10 @@ const CirclePacking = (tree, svgTree, size, props) => {
     .append('g')
     .attr('transform', 'translate(' + diameter / 2 + ',' + diameter / 2 + ')')
 
+  const zoomed2 = function() {
+    g.attr('transform', d3Selection.event.transform)
+  }
+
   const pack = d3Hierarchy
     .pack()
     .size([diameter - MARGIN, diameter - MARGIN])
@@ -77,22 +86,38 @@ const CirclePacking = (tree, svgTree, size, props) => {
   console.log(root)
   console.log(nodes)
 
-  const filtered = nodes.filter((d, i) => d.height !== 0)
+  // const filtered = nodes.filter((d, i) => d.height !== 0)
 
   console.log(nodes)
-  console.log(filtered)
+  // console.log(filtered)
+
+  svg.call(
+    d3Zoom
+      .zoom()
+      .scaleExtent([1 / 10, 30])
+      .on('zoom', zoomed2)
+  )
+
+  svg.on('dblclick.zoom', null)
 
   const circle = g
     .selectAll('circle')
-    .data(filtered)
+    .data(nodes)
     .enter()
-
     .append('circle')
     .attr('id', d => d.data.id)
     .attr('class', function(d) {
       return d.parent
         ? d.children ? 'node' : 'node node--leaf'
         : 'node node--root'
+    })
+    .style('display', function(d) {
+      if (d.depth < MAX_DEPTH) {
+        return 'inline'
+      } else {
+        return 'none'
+      }
+      // return d.parent === root && d.children !== undefined ? 'inline' : 'none'
     })
     .style('fill', function(d) {
       if (d.children) {
@@ -105,7 +130,8 @@ const CirclePacking = (tree, svgTree, size, props) => {
         return 'rgba(255, 255, 255, 0.3)'
       }
     })
-    .on('click', d => {
+    .on('dblclick', d => {
+      console.log('DBL_____________________')
       if (d === undefined) {
         return
       }
@@ -116,11 +142,29 @@ const CirclePacking = (tree, svgTree, size, props) => {
     .on('mouseout', () => {
       props.eventHandlers.hoverOnNode(null, null)
     })
+    .on('contextmenu', (d, i, nodes) => {
+      d3Selection.event.preventDefault()
+      console.log('CTR2!!!!!!!!')
+      d3Selection.select(nodes[i]).style('fill', 'red')
+    })
+    .on('click', (d, i, nodes) => {
+      console.log('Single_____________________')
+      console.log(d3Selection.event.ctrlKey)
+      if (d === undefined) {
+        return
+      }
+
+      if (d3Selection.event.ctrlKey) {
+        console.log('CTR!!!!!!!!')
+        d3Selection.event.preventDefault()
+        d3Selection.select(nodes[i]).style('fill', 'red')
+      }
+    })
 
   const text = g
     .selectAll('text')
-    // .data(nodes)
-    .data(filtered)
+    .data(nodes)
+    // .data(filtered)
     .enter()
     .append('text')
     .style('fill', '#FFFFFF')
@@ -155,10 +199,14 @@ const CirclePacking = (tree, svgTree, size, props) => {
 
   const node = g.selectAll('circle,text')
 
-  svg.style('background', colorMapper(-1)).on('click', e => {
-    console.log('------------------- CLICK')
-    console.log(root)
+  svg.style('background', colorMapper(-1)).on('dblclick', e => {
+    // console.log('------------------- DBL CLICK')
+    //
+    // console.log(e)
+    //
+    // console.log(root)
     if (root !== undefined) {
+      currentDepth = MAX_DEPTH
       zoom(root)
     }
   })
@@ -180,7 +228,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
         }
       })
 
-    const text = transition.selectAll('text')
+    const text = transition.selectAll('.label')
 
     let filtered
     if (d.height === 0) {
@@ -236,10 +284,22 @@ const CirclePacking = (tree, svgTree, size, props) => {
         }
       })
 
+    const circles = transition
+      .selectAll('circle')
+      .style('display', function(d) {
+        currentDepth = focus.depth
+
+        if (d.parent === focus || (currentDepth >= d.depth && d.height>= 1)) {
+          return 'inline'
+        } else {
+          return 'none'
+        }
+        // return d.parent === root && d.children !== undefined ? 'inline' : 'none'
+      })
     console.log('==================About to call')
     console.log(d)
 
-    if (d !== root) props.eventHandlers.selectNode(d.data.id, d.data.data.props)
+    // if (d !== root) props.eventHandlers.selectNode(d.data.id, d.data.data.props)
   }
 
   const zoomTo = v => {
@@ -307,7 +367,7 @@ const wrap = (text, width) => {
     const text = d3Selection.select(this)
 
     const labelText = text.data()[0].data.data.Label
-    const words = labelText.split(/\s+/).reverse()
+    const words = labelText.split(/\s+/)
 
     let lineNumber = 0
     const lineHeight = 4
@@ -320,29 +380,30 @@ const wrap = (text, width) => {
     const wordCount = words.length
     // Case 1: single word
 
-    if(wordCount === 1) {
-      text.text(words[0])
-
+    if (wordCount === 1 || wordCount === 2) {
+      text.text(labelText)
       return
     }
 
-
     // Case 2: multiple words
-
 
     // let tspan = text.text(null).append('tspan')
 
     let tspan
-    while ((word = words.pop())) {
+    // while ((word = words.pop())) {
+    for (let i = 0; i < wordCount - 1; i = i + 2) {
+      const word1 = words[i]
+      const word2 = words[i + 1]
+
+      const word = word1 + ' ' + word2
       tspan = text
         .append('tspan')
         .attr('x', 0)
         .attr('y', -data.r / 2)
-        .attr('dy', (lineNumber * 1.1) + 'em')
+        .attr('dy', lineNumber * 1.1 + 'em')
         .text(word)
 
       lineNumber++
-
     }
   })
 }
