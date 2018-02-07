@@ -9,20 +9,23 @@ import * as d3Zoom from 'd3-zoom'
 const COMPONENT_ID = 'circle-main'
 
 const MARGIN = 50
-const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8D4')]
+const COLOR_RANGE = [d3Color.hsl('steelblue'), d3Color.hsl('#00B8F4')]
 
 const MAX_DEPTH = 2
-
 let currentDepth = 0
+
+let height = 0
+let width = 0
 
 const getColorMap = () =>
   d3Scale
     .scaleLinear()
-    .domain([-1, 5])
+    .domain([-1, 6])
     .range(COLOR_RANGE)
     .interpolate(d3Interpolate.interpolateHcl)
 
 const getSvg = (svgTree, size) => {
+  // Clear current tag
   d3Selection.select('#' + COMPONENT_ID).remove()
 
   return d3Selection
@@ -48,22 +51,20 @@ const getRoot = tree => {
     .sort((a, b) => b.value - a.value)
 }
 
-const handleMouseOut = (d, i, nodes, eventHandlers) => {
-  eventHandlers.hoverOnNode(null, null)
-}
-
 const CirclePacking = (tree, svgTree, size, props) => {
   const svg = getSvg(svgTree, size)
+
+  width = size
+  height = size
 
   const diameter = +svg.attr('height')
   const colorMapper = getColorMap()
 
   // Base setting.
-  const g = svg
-    .append('g')
-    .attr('transform', 'translate(' + diameter / 2 + ',' + diameter / 2 + ')')
+  const g = svg.append('g')
+  // .attr('transform', 'translate(' + diameter / 2 + ',' + diameter / 2 + ')')
 
-  const zoomed2 = function() {
+  const zoomed2 = () => {
     g.attr('transform', d3Selection.event.transform)
   }
 
@@ -82,21 +83,13 @@ const CirclePacking = (tree, svgTree, size, props) => {
 
   let view
 
-  console.log('----------- Initial setup --------')
-  console.log(root)
-  console.log(nodes)
+  const zoom2 = d3Zoom
+    .zoom()
+    .scaleExtent([1 / 20, 40])
+    .on('zoom', zoomed2)
 
-  // const filtered = nodes.filter((d, i) => d.height !== 0)
-
-  console.log(nodes)
-  // console.log(filtered)
-
-  svg.call(
-    d3Zoom
-      .zoom()
-      .scaleExtent([1 / 10, 30])
-      .on('zoom', zoomed2)
-  )
+  svg.call(zoom2)
+  zoom2.translateBy(svg, diameter / 2, diameter / 2)
 
   svg.on('dblclick.zoom', null)
 
@@ -130,16 +123,22 @@ const CirclePacking = (tree, svgTree, size, props) => {
         return 'rgba(255, 255, 255, 0.3)'
       }
     })
-    .on('dblclick', d => {
+    .on('dblclick', (d, i, nodes) => {
       console.log('DBL_____________________')
+      console.log(nodes[i])
       if (d === undefined) {
         return
       }
 
-      if (focus !== d) zoom(d), d3Selection.event.stopPropagation()
+      if (focus !== d) {
+        zoom(d)
+        d3Selection.event.stopPropagation()
+      }
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
-    .on('mouseout', () => {
+    .on('mouseout', (d, i, nodes) => {
+      d3Selection.select(nodes[i]).style('stroke', 'none')
+
       props.eventHandlers.hoverOnNode(null, null)
     })
     .on('contextmenu', (d, i, nodes) => {
@@ -161,10 +160,9 @@ const CirclePacking = (tree, svgTree, size, props) => {
       }
     })
 
-  const text = g
+  g
     .selectAll('text')
     .data(nodes)
-    // .data(filtered)
     .enter()
     .append('text')
     .style('fill', '#FFFFFF')
@@ -177,36 +175,26 @@ const CirclePacking = (tree, svgTree, size, props) => {
       return d.parent === root && d.children !== undefined ? 'inline' : 'none'
     })
     .style('font-size', d => getFontSize(d))
-    // .style('font-size', '1em')
-    // .style('fill-opacity', function(d) {
-    //   return d.parent === root ? 1 : 0
-    // })
-    // .style('display', d => getFontDisplay(d, root))
-    // .text(d => d)
-    // .text(d => d.data.data.Label)
     .call(wrap, 100)
-  // .style('font-size', (d, i, nodes) => {
-  //   console.log(nodes[i].getComputedTextLength())
-  //
-  //   const dir = 2 * d.r
-  //
-  //   return dir / d.data.data.Label.length
-  //
-  //   // Math.min(2 * d.r, (2 * d.r - 8) / nodes[i].getComputedTextLength() * 12) +
-  //   // 'px'
-  // })
-  // .attr('dy', '.35em')
 
   const node = g.selectAll('circle,text')
+  const circleNodes = g.selectAll('circle')
 
-  svg.style('background', colorMapper(-1)).on('dblclick', e => {
-    // console.log('------------------- DBL CLICK')
-    //
-    // console.log(e)
-    //
-    // console.log(root)
+  svg.style('background', 'white').on('dblclick', e => {
     if (root !== undefined) {
       currentDepth = MAX_DEPTH
+
+      console.log('&&&&&&&&&&& REST3')
+      // zoom2.translateBy(svg, width / 2, height / 2).scale(1)
+      const trans = d3Zoom.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(1)
+
+      svg
+        // .transition()
+        // .duration(750)
+        .call(zoom2.transform, trans)
+
       zoom(root)
     }
   })
@@ -216,7 +204,7 @@ const CirclePacking = (tree, svgTree, size, props) => {
 
     const transition = d3Transition
       .transition()
-      .duration(d3Selection.event.altKey ? 7500 : 950)
+      .duration(350)
       .tween('zoom', function(d) {
         const i = d3Interpolate.interpolateZoom(view, [
           focus.x,
@@ -230,74 +218,33 @@ const CirclePacking = (tree, svgTree, size, props) => {
 
     const text = transition.selectAll('.label')
 
-    let filtered
-    if (d.height === 0) {
-      filtered = text.filter(function(d) {
+    text.on('end', function(d) {
+      if (d.parent !== focus) {
+        this.style.display = 'none'
+      }
+      if (d.parent === focus) {
         this.style.display = 'inline'
+        this.style['fill-opacity'] = 1
+      }
+    })
 
-        return d.parent === focus
-      })
-    } else {
-      filtered = text.filter(function(d) {
-        if (d === undefined) {
-          return false
-        }
+    const circles = circleNodes.style('display', function(d) {
+      currentDepth = focus.depth
 
-        return d.parent === focus || this.style.display === 'inline'
-      })
-    }
-
-    console.log(filtered)
-
-    filtered
-      .style('fill-opacity', function(d) {
-        if (d.parent === focus) {
-          if (d.height === 0) {
-            return 1
-          }
-
-          if (d.parent === root && d.children === undefined) {
-            return 0
-          }
-
-          return 1
-        } else {
-          return 0
-        }
-      })
-      .on('start', function(d) {
-        if (d.parent === focus) {
-          if (d.parent === root && d.children === undefined) {
-            this.style.display = 'none'
-          } else {
-            this.style.display = 'inline'
-          }
-        }
-      })
-      .on('end', function(d) {
-        if (d.parent !== focus) {
-          this.style.display = 'none'
-        } else {
-          if (d.parent === root && d.children === undefined) {
-            this.style.display = 'none'
-          }
-        }
-      })
-
-    const circles = transition
-      .selectAll('circle')
-      .style('display', function(d) {
-        currentDepth = focus.depth
-
-        if (d.parent === focus || (currentDepth >= d.depth && d.height>= 1)) {
-          return 'inline'
-        } else {
-          return 'none'
-        }
-        // return d.parent === root && d.children !== undefined ? 'inline' : 'none'
-      })
-    console.log('==================About to call')
-    console.log(d)
+      if (d.parent === focus || (currentDepth >= d.depth && d.height >= 1)) {
+        return 'inline'
+      } else {
+        return 'none'
+      }
+      // return d.parent === root && d.children !== undefined ? 'inline' : 'none'
+    })
+    // .attr('class', function(d, i, nodes) {
+    //   if (d === focus) {
+    //
+    //     console.log(nodes[i])
+    //     return 'node-selected'
+    //   }
+    // })
 
     // if (d !== root) props.eventHandlers.selectNode(d.data.id, d.data.data.props)
   }
@@ -323,8 +270,8 @@ const getFontSize = d => {
 
   const baseFontSize = circleD
 
-  if (baseFontSize >= 30) {
-    return 30
+  if (baseFontSize >= 25) {
+    return 25
   } else if (baseFontSize <= 10) {
     return 10
   } else {
@@ -332,23 +279,40 @@ const getFontSize = d => {
   }
 }
 
-const getFontDisplay = (d, root) => {
-  if (d.parent === root) {
-    // Direct child of the current root circle
-    // if (d.depth === 1 && d.children === undefined) {
-    //   return 'none'
-    // }
+const focusTo = (d, element, width, height, containerElement, zoomFunction) => {
+  const bounds = element.getBBox()
+  console.log(bounds)
+  // const dx = bounds[1][0] - bounds[0][0],
+  //   dy = bounds[1][1] - bounds[0][1],
+  const x = bounds.x,
+    y = bounds.y,
+    // scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
+    translate = [x, y]
 
-    return 'inline'
-  } else {
-    return 'inline'
-  }
+  containerElement
+    .transition()
+    .duration(750)
+    .call(
+      zoomFunction.transform,
+      d3Zoom.zoomIdentity.translate(translate[0], translate[1]).scale(2)
+    )
 }
 
 const handleMouseOver = (d, i, nodes, props) => {
   props.eventHandlers.hoverOnNode(d.data.id, d.data.data)
 
-  d3Selection.selectAll('text').style('fill', d2 => {
+  const element = nodes[i]
+  d3Selection.select(element).style('stroke', (d) => {
+    return 'white'
+  })
+
+  console.log(element)
+  // d3Selection.select(element).attr('class', (d, i, classes) => {
+  //   console.log(classes)
+  //   return classes + ' current-node'
+  // })
+
+  d3Selection.selectAll('.label').style('fill', d2 => {
     if (d2 === undefined || d2.data === undefined) {
       return null
     }
