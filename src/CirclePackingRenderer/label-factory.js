@@ -7,13 +7,13 @@ const getLabels = (textElement, width) => {
     .selectAll('tspan')
     .data(function(d, i, nodes) {
       const labelText = d.data.data.Label
-      return labelText.substring(labelText.lastIndexOf('.') + 1).split(/ /g)
+      return labelText.split(/ /g)
     })
     .enter()
     .append('tspan')
     .attr('x', 0)
     .attr('y', (d, i, nodes) => {
-      return 18 + (i - nodes.length / 2 - 0.5) * 12
+      return 20+ (i - nodes.length / 2 - 0.5) * 17
     })
     .text(d => d)
 
@@ -52,7 +52,7 @@ const getLabels = (textElement, width) => {
   //     const word = word1 + ' ' + word2
   //     tspan = text
   //       .append('tspan')
-  //       .attr('x', 0)
+  //       .attr('x', 0)]
   //       .attr('y', -data.r / 2)
   //       .attr('dy', lineNumber * 1.1 + 'em')
   //       .text(word)

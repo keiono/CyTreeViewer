@@ -12,7 +12,9 @@ import getLabels from './label-factory'
 const colorMapper = getColorMap()
 const MARGIN = 50
 
-const MAX_DEPTH = 2
+const MAX_DEPTH = 4
+
+// TODO: Manage these states in React way
 let currentDepth = 0
 
 let height = 0
@@ -35,15 +37,14 @@ let circleNodes
 let root
 
 let selectedCircle
-let subSelected = []
+let subSelected = new Map()
 
-
-const CirclePacking = (tree, svgTree, size, originalProps) => {
+const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
-  const svg = getSvg(svgTree, size, size)
+  const svg = getSvg(svgTree, width1, height1)
 
-  width = size
-  height = size
+  width = width1
+  height = height1
 
   diameter = +svg.attr('height')
 
@@ -78,7 +79,7 @@ const CirclePacking = (tree, svgTree, size, originalProps) => {
     .on('zoom', zoomed2)
 
   svg.call(zoom2)
-  zoom2.translateBy(svg, diameter / 2, diameter / 2)
+  zoom2.translateBy(svg, width / 2, height / 2)
 
   svg.on('dblclick.zoom', null)
 
@@ -100,19 +101,18 @@ const CirclePacking = (tree, svgTree, size, originalProps) => {
   svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
     if (root === undefined) return
 
-
-
-
     currentDepth = MAX_DEPTH
 
-    const trans = d3Zoom.zoomIdentity.translate(width / 2, height / 2).scale(1)
+    // Reset
+    const trans = d3Zoom.zoomIdentity
+      .translate(props.width / 2, props.height / 2).scale(1)
 
     svg
       // .transition()
       // .duration(750)
       .call(zoom2.transform, trans)
 
-    zoom(root)
+    // zoom(root)
   })
 
   const initialPosition = [root.x, root.y, root.r * 2 + MARGIN]
@@ -189,16 +189,15 @@ const addCircles = (container, data) => {
         return
       }
 
-      if(selectedCircle !== undefined) {
+      if (selectedCircle !== undefined) {
         selectedCircle.classed('node-selected', false)
       }
 
-
       // Reset sub-selection
-      subSelected.forEach(selected => {
-        selected.classed('node-selected-sub', false)
+      subSelected.forEach(v => {
+        v.classed('node-selected-sub', false)
       })
-      subSelected = []
+      subSelected.clear()
 
       // Change border
       selectedCircle = d3Selection.select(nodes[i])
@@ -211,12 +210,9 @@ const addCircles = (container, data) => {
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
     .on('mouseout', (d, i, nodes) => {
-
       props.eventHandlers.hoverOnNode(null, null)
     })
     .on('contextmenu', (d, i, nodes) => {
-      console.log(d)
-
       if (d === undefined) {
         return
       }
@@ -225,13 +221,17 @@ const addCircles = (container, data) => {
         d3Selection.event.preventDefault()
 
         const newSelection = d3Selection.select(nodes[i])
-        subSelected.push(newSelection)
-        newSelection
-          .classed('node-selected-sub', true)
+        const newId = d.data.id
+        if (subSelected.has(newId)) {
+          subSelected.delete(newId)
+          newSelection.classed('node-selected-sub', false)
+        } else {
+          subSelected.set(newId, newSelection)
+          newSelection.classed('node-selected-sub', true)
+        }
       }
     })
-    .on('click', (d, i, nodes) => {
-    })
+    .on('click', (d, i, nodes) => {})
 }
 
 const zoom = d => {
@@ -272,6 +272,10 @@ const zoom = d => {
       return 'none'
     }
   })
+
+  if (d !== root) {
+    props.eventHandlers.selectNode(d.data.id, d.data.data.props)
+  }
 }
 
 const zoomTo = v => {
@@ -294,7 +298,7 @@ const handleMouseOver = (d, i, nodes, props) => {
       return null
     }
     if (d.data.id === d2.data.id) {
-      return 'orange'
+      return 'teal'
     } else {
       return '#FFFFFF'
     }
