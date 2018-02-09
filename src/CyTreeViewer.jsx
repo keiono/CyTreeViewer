@@ -3,7 +3,7 @@ import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
 const DEF_EVENT_HANDLERS = Immutable.fromJS({
-  selectNode: (nodeId, properties = {}) => {
+  selectNode: (nodeId, properties = {}, zoom = true) => {
     console.log('selectNode called.')
     console.log(nodeId)
     console.log(properties)

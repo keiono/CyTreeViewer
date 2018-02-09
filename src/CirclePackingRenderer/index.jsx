@@ -5,7 +5,6 @@ import CirclePacking from './d3-circle-packing'
  * React component version of circle packing
  */
 class CirclePackingRenderer extends Component {
-
   componentDidMount() {
     CirclePacking(
       this.props.tree,

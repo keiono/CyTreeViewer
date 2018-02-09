@@ -228,6 +228,7 @@ const addCircles = (container, data) => {
         } else {
           subSelected.set(newId, newSelection)
           newSelection.classed('node-selected-sub', true)
+          props.eventHandlers.selectNode(d.data.id, d.data.data.props, false)
         }
       }
     })
@@ -274,7 +275,7 @@ const zoom = d => {
   })
 
   if (d !== root) {
-    props.eventHandlers.selectNode(d.data.id, d.data.data.props)
+    props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
   }
 }
 
@@ -298,7 +299,7 @@ const handleMouseOver = (d, i, nodes, props) => {
       return null
     }
     if (d.data.id === d2.data.id) {
-      return 'teal'
+      return 'red'
     } else {
       return '#FFFFFF'
     }
