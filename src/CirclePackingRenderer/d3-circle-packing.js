@@ -12,7 +12,7 @@ import getLabels from './label-factory'
 const colorMapper = getColorMap()
 const MARGIN = 50
 
-const MAX_DEPTH = 4
+const MAX_DEPTH = 3
 
 // TODO: Manage these states in React way
 let currentDepth = 0
@@ -210,6 +210,7 @@ const addCircles = (container, data) => {
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
     .on('mouseout', (d, i, nodes) => {
+      props.eventHandlers.deselectNode(d.data.id)
       props.eventHandlers.hoverOnNode(null, null)
     })
     .on('contextmenu', (d, i, nodes) => {
