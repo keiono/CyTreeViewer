@@ -210,8 +210,7 @@ const addCircles = (container, data) => {
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
     .on('mouseout', (d, i, nodes) => {
-      props.eventHandlers.deselectNode(d.data.id)
-      props.eventHandlers.hoverOnNode(null, null)
+      props.eventHandlers.hoverOutNode(d.data.id, d.data.data.props)
     })
     .on('contextmenu', (d, i, nodes) => {
       if (d === undefined) {
