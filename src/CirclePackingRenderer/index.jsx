@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import CirclePacking, {selectNodes} from './d3-circle-packing'
+import CirclePacking, { selectNodes } from './d3-circle-packing'
 
 /**
  * React component version of circle packing
@@ -28,10 +28,15 @@ class CirclePackingRenderer extends Component {
       )
     }
 
-    if(nextProps.selected !== this.props.selected) {
-      console.log("############### Selected in TREE")
-      selectNodes(nextProps.selected)
+    if (nextProps.selected === null) {
+      // Clear selection
+      console.log('############### Clear Selected')
+      return
+    }
 
+    if (nextProps.selected !== this.props.selected) {
+      console.log('############### Selected in TREE')
+      selectNodes(nextProps.selected)
     }
   }
 

@@ -278,15 +278,26 @@ const zoom = d => {
     if (d.parent !== focus) {
       this.style.display = 'none'
     }
-    if (d.parent === focus) {
+    if (d.parent === focus || (d === focus && d.height === 0)) {
       this.style.display = 'inline'
       this.style['fill-opacity'] = 1
     }
   })
 
+  // Add internal circles
   circleNodes.style('display', d => {
     // Set current depth for later use
     currentDepth = focus.depth
+
+
+    // Case 1: Genes
+    if(d === focus && d.height === 0) {
+      return 'inline'
+    }
+
+    if(focus.parent === d) {
+      return 'inline'
+    }
 
     if (d.parent === focus || (currentDepth >= d.depth && d.height >= 1)) {
       return 'inline'
@@ -322,6 +333,10 @@ const handleMouseOver = (d, i, nodes, props) => {
 
 export const selectNodes = selected => {
   console.log(selected)
+
+  if(selected === null) {
+    return
+  }
 
   const selectedCircles = selected
     .map(id => '#c' + id)
