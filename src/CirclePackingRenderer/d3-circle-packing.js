@@ -14,11 +14,15 @@ const MARGIN = 50
 
 const MAX_DEPTH = 3
 
+const TRANSITION_DURATION = 400
+
 // TODO: Manage these states in React way
 let currentDepth = 0
 
 let height = 0
 let width = 0
+
+let g
 
 let treeHeight = 0
 
@@ -49,7 +53,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   diameter = +svg.attr('height')
 
   // Base setting.
-  const g = svg.append('g')
+  g = svg.append('g')
   // .attr('transform', 'translate(' + diameter / 2 + ',' + diameter / 2 + ')')
 
   const zoomed2 = () => {
@@ -105,7 +109,8 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
     // Reset
     const trans = d3Zoom.zoomIdentity
-      .translate(props.width / 2, props.height / 2).scale(1)
+      .translate(props.width / 2, props.height / 2)
+      .scale(1)
 
     svg
       // .transition()
@@ -126,8 +131,8 @@ const getFontSize = d => {
 
   if (baseFontSize >= 25) {
     return 25
-  } else if (baseFontSize <= 10) {
-    return 10
+  } else if (baseFontSize <= 8) {
+    return 8
   } else {
     return baseFontSize
   }
@@ -159,7 +164,7 @@ const addCircles = (container, data) => {
     .data(data)
     .enter()
     .append('circle')
-    .attr('id', d => d.data.id)
+    .attr('id', d => 'c' + d.data.id)
     .attr('class', function(d) {
       return d.parent
         ? d.children ? 'node' : 'node node--leaf'
@@ -174,10 +179,21 @@ const addCircles = (container, data) => {
       // return d.parent === root && d.children !== undefined ? 'inline' : 'none'
     })
     .style('fill', function(d) {
+      const data = d.data.data
+
+      // This is a hidden node.
+      if (data.props.Hidden === true) {
+        if (data.NodeType !== 'Gene') {
+          return '#66c2a4'
+        } else {
+          return '#238b45'
+        }
+      }
+
       if (d.children) {
         return colorMapper(d.depth)
       } else {
-        if (d.data.data.NodeType !== 'Gene') {
+        if (data.NodeType !== 'Gene') {
           return colorMapper(d.depth)
         }
 
@@ -210,7 +226,9 @@ const addCircles = (container, data) => {
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
     .on('mouseout', (d, i, nodes) => {
-      props.eventHandlers.hoverOutNode(d.data.id, d.data.data.props)
+      setTimeout(() => {
+        props.eventHandlers.hoverOutNode(d.data.id, d.data.data.props)
+      }, 0)
     })
     .on('contextmenu', (d, i, nodes) => {
       if (d === undefined) {
@@ -236,17 +254,19 @@ const addCircles = (container, data) => {
 }
 
 const zoom = d => {
+  // Update current focus
   focus = d
 
   const transition = d3Transition
     .transition()
-    .duration(350)
-    .tween('zoom', function(d) {
+    .duration(TRANSITION_DURATION)
+    .tween('zoom', d => {
       const i = d3Interpolate.interpolateZoom(view, [
         focus.x,
         focus.y,
         focus.r * 2 + MARGIN
       ])
+
       return t => {
         zoomTo(i(t))
       }
@@ -264,7 +284,8 @@ const zoom = d => {
     }
   })
 
-  const circles = circleNodes.style('display', function(d) {
+  circleNodes.style('display', d => {
+    // Set current depth for later use
     currentDepth = focus.depth
 
     if (d.parent === focus || (currentDepth >= d.depth && d.height >= 1)) {
@@ -274,9 +295,11 @@ const zoom = d => {
     }
   })
 
-  if (d !== root) {
-    props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
-  }
+  setTimeout(() => {
+    if (d !== root) {
+      props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
+    }
+  }, TRANSITION_DURATION + 10)
 }
 
 const zoomTo = v => {
@@ -292,18 +315,25 @@ const zoomTo = v => {
 }
 
 const handleMouseOver = (d, i, nodes, props) => {
-  props.eventHandlers.hoverOnNode(d.data.id, d.data.data)
+  setTimeout(() => {
+    props.eventHandlers.hoverOnNode(d.data.id, d.data.data)
+  }, 10)
+}
 
-  d3Selection.selectAll('.label').style('fill', d2 => {
-    if (d2 === undefined || d2.data === undefined) {
-      return null
-    }
-    if (d.data.id === d2.data.id) {
-      return 'red'
-    } else {
-      return '#FFFFFF'
-    }
-  })
+export const selectNodes = selected => {
+  console.log(selected)
+
+  const selectedCircles = selected
+    .map(id => '#c' + id)
+    .reduce(
+      (previousValue, currentValue, index, array) =>
+        previousValue + ', ' + currentValue
+    )
+
+  const selected2 = d3Selection.selectAll(selectedCircles)
+  console.log(selected2)
+
+  selected2.style('fill', 'red').style('display', 'inline')
 }
 
 export default CirclePacking
