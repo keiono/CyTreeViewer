@@ -117,7 +117,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
       // .duration(750)
       .call(zoom2.transform, trans)
 
-    // zoom(root)
+    zoom(root)
   })
 
   const initialPosition = [root.x, root.y, root.r * 2 + MARGIN]
@@ -129,10 +129,10 @@ const getFontSize = d => {
 
   const baseFontSize = circleD
 
-  if (baseFontSize >= 25) {
-    return 25
-  } else if (baseFontSize <= 8) {
-    return 8
+  if (baseFontSize >= 18) {
+    return 18
+  } else if (baseFontSize <= 3) {
+    return 3
   } else {
     return baseFontSize
   }

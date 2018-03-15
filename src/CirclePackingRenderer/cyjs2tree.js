@@ -3,13 +3,16 @@ import * as d3Hierarchy from 'd3-hierarchy'
 const cyjs2tree = cyjs => {
   if (cyjs === undefined || cyjs === null) {
     // Return empty
-
     return null
   }
 
   const edges = elements.edges
 
   const table = transform(edges)
+
+  console.log("++++++++++++++ Original data ++++++++++")
+  console.log(elements)
+
 
   return d3Hierarchy
     .stratify()
