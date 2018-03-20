@@ -138,7 +138,21 @@ const getFontSize = d => {
   }
 }
 
+const showLabelOrNot = (d, childTh) => {
+  if (
+    d.parent === root &&
+    d.children !== undefined &&
+    d.children.length >= childTh
+  ) {
+    return 'inline'
+  } else {
+    return 'none'
+  }
+}
+
 const addLabels = (container, data) => {
+  console.log('Label data: ', data)
+
   container
     .selectAll('text')
     .data(data)
@@ -150,9 +164,7 @@ const addLabels = (container, data) => {
     .style('fill-opacity', function(d) {
       return d.parent === root ? 1 : 0
     })
-    .style('display', function(d) {
-      return d.parent === root && d.children !== undefined ? 'inline' : 'none'
-    })
+    .style('display', d => showLabelOrNot(d, 50))
     .style('font-size', d => getFontSize(d))
     .call(getLabels, 100)
 }
@@ -171,7 +183,7 @@ const addCircles = (container, data) => {
         : 'node node--root'
     })
     .style('display', function(d) {
-      if (d.depth < MAX_DEPTH) {
+      if (d.depth < MAX_DEPTH && d.parent === root) {
         return 'inline'
       } else {
         return 'none'
@@ -272,30 +284,39 @@ const zoom = d => {
       }
     })
 
-  const text = transition.selectAll('.label')
+  // const text = transition.selectAll('.label')
+  //
+  // text.on('end', function(d) {
+  //   if (d.parent !== focus) {
+  //     this.style.display = 'none'
+  //   }
+  //   if (d.parent === focus || (d === focus && d.height === 0)) {
+  //
+  //     if(d.children !== undefined) {
+  //       this.style.display = 'inline'
+  //       this.style['fill-opacity'] = 1
+  //     }
+  //   }
+  // })
 
-  text.on('end', function(d) {
-    if (d.parent !== focus) {
-      this.style.display = 'none'
-    }
-    if (d.parent === focus || (d === focus && d.height === 0)) {
-      this.style.display = 'inline'
-      this.style['fill-opacity'] = 1
+  const filteredNodes = circleNodes.filter(d => {
+    if (d.parent === focus) {
+      return true
+    } else {
+      return false
     }
   })
-
   // Add internal circles
-  circleNodes.style('display', d => {
+  filteredNodes.style('display', d => {
     // Set current depth for later use
     currentDepth = focus.depth
 
-
     // Case 1: Genes
-    if(d === focus && d.height === 0) {
+    if (d === focus && d.height === 0) {
       return 'inline'
     }
 
-    if(focus.parent === d) {
+    if (focus.parent === d) {
       return 'inline'
     }
 
@@ -334,7 +355,7 @@ const handleMouseOver = (d, i, nodes, props) => {
 export const selectNodes = selected => {
   console.log(selected)
 
-  if(selected === null) {
+  if (selected === null) {
     return
   }
 

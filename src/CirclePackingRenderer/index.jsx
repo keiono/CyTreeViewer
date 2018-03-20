@@ -30,12 +30,10 @@ class CirclePackingRenderer extends Component {
 
     if (nextProps.selected === null) {
       // Clear selection
-      console.log('############### Clear Selected')
       return
     }
 
     if (nextProps.selected !== this.props.selected) {
-      console.log('############### Selected in TREE')
       selectNodes(nextProps.selected)
     }
   }
