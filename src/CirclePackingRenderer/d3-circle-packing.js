@@ -14,7 +14,11 @@ const MARGIN = 50
 
 const MAX_DEPTH = 3
 
+
 const TRANSITION_DURATION = 400
+
+const SHOW_LABEL_TH = 5
+
 
 // TODO: Manage these states in React way
 let currentDepth = 0
@@ -42,6 +46,11 @@ let root
 
 let selectedCircle
 let subSelected = new Map()
+
+
+const currentSet = new Set()
+
+
 
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
@@ -87,15 +96,17 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   svg.on('dblclick.zoom', null)
 
-  const filteredNodes = nodes.filter(d => {
-    if (d === root || d.parent === root) {
-      return true
-    } else {
-      return false
-    }
-  })
+  // const filteredNodes = nodes.filter(d => {
+  //   if (d === root || d.parent === root) {
+  //     return true
+  //   } else {
+  //     return false
+  //   }
+  // })
 
   circle = addCircles(g, nodes)
+
+  console.log('Initial circles: ', currentSet)
 
   addLabels(g, nodes)
 
@@ -138,11 +149,14 @@ const getFontSize = d => {
   }
 }
 
+
+
+// Determine which labels should be displayed or not
 const showLabelOrNot = (d, childTh) => {
   if (
-    d.parent === root &&
+    (d.parent === focus &&
     d.children !== undefined &&
-    d.children.length >= childTh
+    d.children.length >= childTh) || d === focus
   ) {
     return 'inline'
   } else {
@@ -164,7 +178,7 @@ const addLabels = (container, data) => {
     .style('fill-opacity', function(d) {
       return d.parent === root ? 1 : 0
     })
-    .style('display', d => showLabelOrNot(d, 50))
+    .style('display', d => showLabelOrNot(d, SHOW_LABEL_TH))
     .style('font-size', d => getFontSize(d))
     .call(getLabels, 100)
 }
@@ -183,7 +197,12 @@ const addCircles = (container, data) => {
         : 'node node--root'
     })
     .style('display', function(d) {
-      if (d.depth < MAX_DEPTH && d.parent === root) {
+
+      if(d.parent === focus) {
+        currentSet.add(d)
+      }
+
+      if (d === root || (d.depth < MAX_DEPTH && d.parent === root) ) {
         return 'inline'
       } else {
         return 'none'
