@@ -14,11 +14,9 @@ const MARGIN = 50
 
 const MAX_DEPTH = 3
 
-
 const TRANSITION_DURATION = 400
 
-const SHOW_LABEL_TH = 5
-
+const SHOW_LABEL_TH = 0
 
 // TODO: Manage these states in React way
 let currentDepth = 0
@@ -41,16 +39,19 @@ let diameter
 let circle
 
 let circleNodes
+let labels
+
 
 let root
 
 let selectedCircle
 let subSelected = new Map()
 
-
 const currentSet = new Set()
 
 
+
+let lastSelection = null
 
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
@@ -96,22 +97,13 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   svg.on('dblclick.zoom', null)
 
-  // const filteredNodes = nodes.filter(d => {
-  //   if (d === root || d.parent === root) {
-  //     return true
-  //   } else {
-  //     return false
-  //   }
-  // })
-
   circle = addCircles(g, nodes)
-
-  console.log('Initial circles: ', currentSet)
 
   addLabels(g, nodes)
 
   node = g.selectAll('circle,text')
   circleNodes = g.selectAll('circle')
+  labels = g.selectAll('.label')
 
   svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
     if (root === undefined) return
@@ -137,27 +129,34 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
 const getFontSize = d => {
   const circleD = d.r / 2
+  const txt = d.data.data.Label
 
-  const baseFontSize = circleD
+  const textLen = txt.length
 
-  if (baseFontSize >= 18) {
-    return 18
-  } else if (baseFontSize <= 3) {
-    return 3
-  } else {
-    return baseFontSize
+
+  if(textLen <= 5) {
+    return (d.r*2)/textLen
   }
+
+  
+  return (d.r*3)/textLen
+
+
+
+  // const baseFontSize = circleD
+  //
+  // if (baseFontSize >= 18) {
+  //   return 18
+  // } else if (baseFontSize <= 3) {
+  //   return 3
+  // } else {
+  //   return baseFontSize
+  // }
 }
 
-
-
 // Determine which labels should be displayed or not
-const showLabelOrNot = (d, childTh) => {
-  if (
-    (d.parent === focus &&
-    d.children !== undefined &&
-    d.children.length >= childTh) || d === focus
-  ) {
+const showLabelOrNot = (d, th) => {
+  if ((d.parent === focus || d === focus) && d.value > th) {
     return 'inline'
   } else {
     return 'none'
@@ -165,9 +164,15 @@ const showLabelOrNot = (d, childTh) => {
 }
 
 const addLabels = (container, data) => {
-  console.log('Label data: ', data)
+  const firstChildren = root.children
+  const thPoint = Math.floor(firstChildren.length * 0.8)
 
-  container
+  const values = firstChildren.map(child => (child.value))
+    .sort((a, b) => (a - b))
+
+  const th = values[thPoint]
+
+  return container
     .selectAll('text')
     .data(data)
     .enter()
@@ -175,12 +180,12 @@ const addLabels = (container, data) => {
     .style('fill', '#FFFFFF')
     .style('text-anchor', 'middle')
     .attr('class', 'label')
-    .style('fill-opacity', function(d) {
-      return d.parent === root ? 1 : 0
-    })
-    .style('display', d => showLabelOrNot(d, SHOW_LABEL_TH))
+    // .style('fill-opacity', function(d) {
+    //   return d.parent === root ? 1 : 0
+    // })
+    .style('display', d => showLabelOrNot(d, th))
     .style('font-size', d => getFontSize(d))
-    .call(getLabels, 100)
+    .call(getLabels)
 }
 
 const addCircles = (container, data) => {
@@ -197,12 +202,11 @@ const addCircles = (container, data) => {
         : 'node node--root'
     })
     .style('display', function(d) {
-
-      if(d.parent === focus) {
+      if (d.parent === focus) {
         currentSet.add(d)
       }
 
-      if (d === root || (d.depth < MAX_DEPTH && d.parent === root) ) {
+      if (d === root || (d.depth < MAX_DEPTH && d.parent === root)) {
         return 'inline'
       } else {
         return 'none'
@@ -285,50 +289,98 @@ const addCircles = (container, data) => {
 }
 
 const zoom = d => {
+
+
+  // Clear last selection
+
+  // if(lastSelection !== null && (focus.depth >= d.depth)) {
+  //   const lastIds = lastSelection.map(node => '#c' + node.data.id).join(', ')
+  //   const lastSelected = d3Selection.selectAll(lastIds)
+  //   lastSelected.style('display', d => {
+  //     return 'none'
+  //   })
+  // }
+
+
   // Update current focus
   focus = d
 
-  const transition = d3Transition
-    .transition()
-    .duration(TRANSITION_DURATION)
-    .tween('zoom', d => {
-      const i = d3Interpolate.interpolateZoom(view, [
-        focus.x,
-        focus.y,
-        focus.r * 2 + MARGIN
-      ])
+  console.log('*** FOCUS: ', focus)
+  // const transition = d3Transition
+  //   .transition()
+  //   .duration(TRANSITION_DURATION)
+  //   .tween('zoom', d => {
+  //     const i = d3Interpolate.interpolateZoom(view, [
+  //       focus.x,
+  //       focus.y,
+  //       focus.r * 2 + MARGIN
+  //     ])
+  //
+  //     return t => {
+  //       zoomTo(i(t))
+  //     }
+  //   })
 
-      return t => {
-        zoomTo(i(t))
-      }
-    })
+  // Select focused node
+  // const focusedNode = d3Selection.select('#c' + d.data.id)
+  //
+  // console.log("F2: ", focusedNode)
 
+  let t0 = performance.now()
   // const text = transition.selectAll('.label')
   //
+
+  labels.style('display', d => {
+    if (d.parent !== focus) {
+      return 'none'
+    }
+    if (d.parent === focus) {
+      // if (d.children !== undefined) {
+      return 'inline'
+      // this.style['fill-opacity'] = 1
+    }
+  })
   // text.on('end', function(d) {
   //   if (d.parent !== focus) {
   //     this.style.display = 'none'
   //   }
-  //   if (d.parent === focus || (d === focus && d.height === 0)) {
-  //
-  //     if(d.children !== undefined) {
-  //       this.style.display = 'inline'
-  //       this.style['fill-opacity'] = 1
-  //     }
+  //   if (d.parent === focus) {
+  //     // if (d.children !== undefined) {
+  //     this.style.display = 'inline'
+  //     this.style['fill-opacity'] = 1
   //   }
   // })
 
-  const filteredNodes = circleNodes.filter(d => {
-    if (d.parent === focus) {
-      return true
-    } else {
-      return false
-    }
-  })
-  // Add internal circles
-  filteredNodes.style('display', d => {
+  let t2 = performance.now()
+
+  console.log('########### LABEL Done in ' + (t2 - t0))
+
+  // Select next nodes from children of the new focus!
+
+  // const nextNodes = focus.children
+  // console.log(nextNodes, circleNodes)
+
+  // t0 = performance.now()
+
+  // const childIds = focus.children.map(node => '#c' + node.data.id).join(', ')
+  // const childrenSelected = d3Selection.selectAll(childIds)
+
+  // lastSelection = focus.children
+
+
+  // t2 = performance.now()
+
+  // console.log('########### Selection Done in ' + (t2 - t0))
+
+
+  t0 = performance.now()
+
+  circleNodes.style('display', d => {
+
     // Set current depth for later use
     currentDepth = focus.depth
+
+    // return 'inline'
 
     // Case 1: Genes
     if (d === focus && d.height === 0) {
@@ -345,12 +397,14 @@ const zoom = d => {
       return 'none'
     }
   })
+  t2 = performance.now()
+  console.log('########### Draw Done in ' + (t2 - t0))
 
-  setTimeout(() => {
-    if (d !== root) {
-      props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
-    }
-  }, TRANSITION_DURATION + 10)
+  // setTimeout(() => {
+  //   if (d !== root) {
+  //     props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
+  //   }
+  // }, TRANSITION_DURATION + 10)
 }
 
 const zoomTo = v => {

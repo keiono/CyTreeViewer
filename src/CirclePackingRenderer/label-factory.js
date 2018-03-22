@@ -1,20 +1,21 @@
 import * as d3Selection from 'd3-selection'
 
-const getLabels = (textElement, width) => {
-  console.log(textElement)
+const getLabels = (textElement, data, fontSize) => {
+  console.log("FONT*********, ", data, textElement)
 
   textElement
     .selectAll('tspan')
     .data(function(d, i, nodes) {
       const labelText = d.data.data.Label
-      return labelText.split(/ /g)
+      // return labelText.split(/ /g)
+      return labelText
     })
     .enter()
     .append('tspan')
-    .attr('x', 0)
-    .attr('y', (d, i, nodes) => {
-      return 20+ (i - nodes.length / 2 - 0.5) * 17
-    })
+    // .attr('x', 0)
+    // .attr('y', (d, i, nodes) => {
+    //   return 20+ (i - nodes.length / 2 - 0.5) * 17
+    // })
     .text(d => d)
 
   // textElement.each(function() {
