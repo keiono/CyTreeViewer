@@ -226,7 +226,7 @@ const addCircles = (container, data) => {
       // This is a hidden node.
       if (data.props.Hidden === true) {
         if (data.NodeType !== 'Gene') {
-          return '#66c2a4'
+          return '#DDDDDD'
         } else {
           return '#238b45'
         }
@@ -302,6 +302,9 @@ const selectCurrentNodes = (nodes, type) => {
 
 const zoom = d => {
   // Update current focus
+
+  const lastFocus = focus
+
   focus = d
 
   // if (nodeCount < 10000) {
@@ -330,20 +333,31 @@ const zoom = d => {
   //   })
   //
   // } else {
+
   labels
     .attr('y', d => getFontSize(d) / 2)
     .style('display', d => {
-      if (d.parent !== focus) {
+
+      // Avoid showing
+      if (d === focus && d.height !== 0) {
         return 'none'
       }
-      if (d.parent === focus) {
-        // if (d.children !== undefined) {
+
+      if (
+        d.parent === focus ||
+        (focus.parent === d.parent && d.parent.depth === focus.parent.depth)
+      ) {
         return 'inline'
       }
+
+      return 'none'
+
+      // if (d.parent !== focus) {
+      //   return 'none'
+      // }
     })
 
     .style('font-size', d => getFontSize(d))
-
 
   // Select next nodes from children of the new focus!
 
@@ -362,19 +376,20 @@ const zoom = d => {
   // console.log('########### Selection Done in ' + (t2 - t0))
   // }
 
-
   circleNodes.style('display', d => {
     // Set current depth for later use
     currentDepth = focus.depth
 
-    // return 'inline'
-
     // Case 1: Genes
-    if (d === focus && d.height === 0) {
+    if (d === focus) {
       return 'inline'
     }
 
-    if (focus.parent === d) {
+    if (
+      focus.parent === d ||
+      (focus.parent === d.parent && d.parent.depth === focus.parent.depth)
+      // (d.parent === lastFocus && d.depth === lastFocus.depth)
+    ) {
       return 'inline'
     }
 
