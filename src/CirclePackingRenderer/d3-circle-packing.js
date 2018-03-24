@@ -183,11 +183,7 @@ const addLabels = (container, data) => {
     .style('fill', '#FFFFFF')
     .style('text-anchor', 'middle')
     .attr('class', 'label')
-    // .style('fill-opacity', function(d) {
-    //   return d.parent === root ? 1 : 0
-    // })
     .style('display', d => showLabelOrNot(d, th))
-    // .style('font-size', 10)
     .text(d => d.data.data.Label)
     .style('font-size', d => getFontSize(d))
   // .call(getLabels)
