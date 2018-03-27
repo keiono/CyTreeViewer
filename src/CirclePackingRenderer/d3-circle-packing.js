@@ -253,6 +253,7 @@ const addCircles = (container, data) => {
       })
       subSelected.clear()
 
+
       // Change border
       selectedCircle = d3Selection.select(nodes[i])
       selectedCircle.classed('node-selected', true)
@@ -398,6 +399,7 @@ const zoom = d => {
 
   setTimeout(() => {
     if (d !== root) {
+      console.log('* Circle selected: ', d.data.data.props.Label)
       props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
     }
   }, TRANSITION_DURATION + 10)
