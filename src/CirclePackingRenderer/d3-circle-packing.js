@@ -18,6 +18,8 @@ const TRANSITION_DURATION = 400
 
 const SHOW_LABEL_TH = 0
 
+const LABEL_SIZE_TH = 6
+
 // TODO: Manage these states in React way
 let currentDepth = 0
 
@@ -49,6 +51,11 @@ let subSelected = new Map()
 const currentSet = new Set()
 
 let nodeCount = 0
+
+let sizeTh = 0
+
+const labelSizeMap = new Map()
+
 
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
@@ -99,16 +106,31 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   addLabels(g, nodes)
 
+
+  // Now label map is available.
+  const labelSizes = [...labelSizeMap.values()]
+  const sorted = labelSizes.sort((a, b) => (a - b))
+
+  sizeTh = sorted[Math.floor(sorted.length * 0.85)]
+
   const labelTargets = selectCurrentNodes(root.children, 'l')
   const th = getLabelThreshold(root.children)
 
   labelTargets
     .style('display', d => {
-      if (d !== root && d.value > th) {
+      const size = labelSizeMap.get(d.data.id)
+
+      if (size > sizeTh) {
         return 'inline'
+      } else {
+        return 'none'
       }
+
+      // if (d !== root && d.value > th) {
+      //   return 'inline'
+      // }
     })
-    .style('font-size', d => getFontSize(d))
+    .style('font-size', d => labelSizeMap.get(d.data.id))
 
   node = g.selectAll('circle,text')
   circleNodes = g.selectAll('circle')
@@ -166,13 +188,20 @@ const showLabelOrNot = (d, th) => {
   }
 }
 
+const createSizeMap = (d) => {
+  const size = getFontSize(d)
+  labelSizeMap.set(d.data.id, size)
+  return size
+}
+
+
 const addLabels = (container, data) => {
-  const firstChildren = root.children
-  const thPoint = Math.floor(firstChildren.length * 0.8)
+  // const firstChildren = root.children
+  // const thPoint = Math.floor(firstChildren.length * 0.8)
 
-  const values = firstChildren.map(child => child.value).sort((a, b) => a - b)
+  // const values = firstChildren.map(child => child.value).sort((a, b) => a - b)
 
-  const th = values[thPoint]
+  // const th = values[thPoint]
 
   const labels = container
     .selectAll('text')
@@ -183,9 +212,9 @@ const addLabels = (container, data) => {
     .style('fill', '#FFFFFF')
     .style('text-anchor', 'middle')
     .attr('class', 'label')
-    .style('display', d => showLabelOrNot(d, th))
     .text(d => d.data.data.Label)
-    .style('font-size', d => getFontSize(d))
+    .style('font-size', d => createSizeMap(d))
+    .style('display', 'none')
   // .call(getLabels)
 
   return labels
@@ -252,7 +281,6 @@ const addCircles = (container, data) => {
         v.classed('node-selected-sub', false)
       })
       subSelected.clear()
-
 
       // Change border
       selectedCircle = d3Selection.select(nodes[i])
@@ -334,20 +362,32 @@ const zoom = d => {
   labels
     .attr('y', d => getFontSize(d) / 2)
     .style('display', d => {
-
       // Avoid showing
       if (d === focus && d.height !== 0) {
         return 'none'
       }
 
-      if (
-        d.parent === focus ||
-        (focus.parent === d.parent && d.parent.depth === focus.parent.depth)
-      ) {
-        return 'inline'
-      }
 
-      return 'none'
+      if (focus.children !== undefined && focus.children.length < 100) {
+        if (
+          d.parent === focus ||
+          (focus.parent === d.parent && d.parent.depth === focus.parent.depth)
+        ) {
+          return 'inline'
+        } else {
+          return 'none'
+        }
+      } else {
+        const size = labelSizeMap.get(d.data.id)
+        if(size > sizeTh && (
+            d.parent === focus ||
+            (focus.parent === d.parent && d.parent.depth === focus.parent.depth)
+          ) ) {
+          return 'inline'
+        } else {
+          return 'none'
+        }
+      }
 
       // if (d.parent !== focus) {
       //   return 'none'
