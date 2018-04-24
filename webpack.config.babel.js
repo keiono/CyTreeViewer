@@ -3,6 +3,7 @@ const path = require('path')
 
 export default () => ({
   devtool: 'cheap-module-eval-source-map',
+  mode: 'development',
 
   context: path.join(__dirname, './src'),
 

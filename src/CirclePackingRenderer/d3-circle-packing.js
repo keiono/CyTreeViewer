@@ -298,6 +298,9 @@ const addCircles = (container, data) => {
       }, 0)
     })
     .on('contextmenu', (d, i, nodes) => {
+      console.log('#Circle CM selection: ', d)
+
+
       if (d === undefined) {
         return
       }
@@ -305,16 +308,37 @@ const addCircles = (container, data) => {
       if (d3Selection.event.ctrlKey) {
         d3Selection.event.preventDefault()
 
+        // CTR-Click means multiple selection in the current circle.
         const newSelection = d3Selection.select(nodes[i])
+        console.log(subSelected, newSelection)
+
+        // ID of new Circle
         const newId = d.data.id
+
+        console.log('New Selected: ', newId)
+
+        // Toggle selection.
         if (subSelected.has(newId)) {
+
+          console.log('!!! Already Selected: ', newId)
           subSelected.delete(newId)
+
           newSelection.classed('node-selected-sub', false)
         } else {
+          // New selection
+          console.log('!!! Selected: ', newId)
           subSelected.set(newId, newSelection)
           newSelection.classed('node-selected-sub', true)
-          props.eventHandlers.selectNode(d.data.id, d.data.data.props, false)
+
+          // Call action to select nodes in the view
+
+          // props.eventHandlers.selectNode(d.data.id, d.data.data.props, false)
+
+          props.eventHandlers.selectNodes(d.data.id, d.data.data.props, false)
         }
+
+
+
       }
     })
     .on('click', (d, i, nodes) => {})
@@ -464,7 +488,6 @@ const handleMouseOver = (d, i, nodes, props) => {
 }
 
 export const selectNodes = selected => {
-  console.log(selected)
 
   if (selected === null) {
     return

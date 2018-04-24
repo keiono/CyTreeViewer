@@ -20,7 +20,7 @@
     "src/*"
   ],
   "scripts": {
-    "build": "./node_modules/.bin/webpack --mode production --progress --colors",
+    "build": "./node_modules/.bin/webpack --progress --colors",
     "clean": "rm build/*",
     "lint": "eslint src/ --fix; exit 0",
     "test": "./node_modules/.bin/jest",
@@ -36,8 +36,8 @@
   },
   "dependencies": {
     "d3-array": "^1.2.1",
-    "d3-color": "^1.0.3",
-    "d3-hierarchy": "^1.1.5",
+    "d3-color": "^1.1.0",
+    "d3-hierarchy": "^1.1.6",
     "d3-interpolate": "^1.1.6",
     "d3-scale": "^1.0.7",
     "d3-selection": "^1.3.0",
@@ -53,7 +53,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
-    "babel-eslint": "^8.2.2",
+    "babel-eslint": "^8.2.3",
     "babel-jest": "^22.4.3",
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
@@ -67,12 +67,12 @@
     "immutable": "^3.8.2",
     "jest": "^21.2.1",
     "jest-webpack-alias": "^3.3.3",
-    "prettier": "^1.11.1",
+    "prettier": "^1.12.1",
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
     "regenerator-runtime": "^0.11.1",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.14"
+    "webpack-cli": "^2.0.15"
   },
   "jest": {
     "transform": {
