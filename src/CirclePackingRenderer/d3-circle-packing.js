@@ -56,7 +56,6 @@ let sizeTh = 0
 
 const labelSizeMap = new Map()
 
-
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
   const svg = getSvg(svgTree, width1, height1)
@@ -106,10 +105,9 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   addLabels(g, nodes)
 
-
   // Now label map is available.
   const labelSizes = [...labelSizeMap.values()]
-  const sorted = labelSizes.sort((a, b) => (a - b))
+  const sorted = labelSizes.sort((a, b) => a - b)
 
   sizeTh = sorted[Math.floor(sorted.length * 0.85)]
 
@@ -188,12 +186,11 @@ const showLabelOrNot = (d, th) => {
   }
 }
 
-const createSizeMap = (d) => {
+const createSizeMap = d => {
   const size = getFontSize(d)
   labelSizeMap.set(d.data.id, size)
   return size
 }
-
 
 const addLabels = (container, data) => {
   // const firstChildren = root.children
@@ -203,21 +200,30 @@ const addLabels = (container, data) => {
 
   // const th = values[thPoint]
 
-  const labels = container
+  return container
     .selectAll('text')
     .data(data)
     .enter()
     .append('text')
     .attr('id', d => 'l' + d.data.id)
-    .style('fill', '#FFFFFF')
+    .style('fill', d => getLabelColor(d))
     .style('text-anchor', 'middle')
     .attr('class', 'label')
     .text(d => d.data.data.Label)
     .style('font-size', d => createSizeMap(d))
     .style('display', 'none')
   // .call(getLabels)
+}
 
-  return labels
+const getLabelColor = d => {
+  const data = d.data.data
+
+  // This is a hidden node.
+  if (data.props.Hidden === true) {
+    return '#222222'
+  } else {
+    return '#FFFFFF'
+  }
 }
 
 const addCircles = (container, data) => {
@@ -300,7 +306,6 @@ const addCircles = (container, data) => {
     .on('contextmenu', (d, i, nodes) => {
       console.log('#Circle CM selection: ', d)
 
-
       if (d === undefined) {
         return
       }
@@ -319,7 +324,6 @@ const addCircles = (container, data) => {
 
         // Toggle selection.
         if (subSelected.has(newId)) {
-
           console.log('!!! Already Selected: ', newId)
           subSelected.delete(newId)
 
@@ -336,9 +340,6 @@ const addCircles = (container, data) => {
 
           props.eventHandlers.selectNodes(d.data.id, d.data.data.props, false)
         }
-
-
-
       }
     })
     .on('click', (d, i, nodes) => {})
@@ -391,7 +392,6 @@ const zoom = d => {
         return 'none'
       }
 
-
       if (focus.children !== undefined && focus.children.length < 100) {
         if (
           d.parent === focus ||
@@ -403,10 +403,12 @@ const zoom = d => {
         }
       } else {
         const size = labelSizeMap.get(d.data.id)
-        if(size > sizeTh && (
-            d.parent === focus ||
-            (focus.parent === d.parent && d.parent.depth === focus.parent.depth)
-          ) ) {
+        if (
+          size > sizeTh &&
+          (d.parent === focus ||
+            (focus.parent === d.parent &&
+              d.parent.depth === focus.parent.depth))
+        ) {
           return 'inline'
         } else {
           return 'none'
@@ -488,7 +490,6 @@ const handleMouseOver = (d, i, nodes, props) => {
 }
 
 export const selectNodes = selected => {
-
   if (selected === null) {
     return
   }
