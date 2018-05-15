@@ -20,6 +20,8 @@ const SHOW_LABEL_TH = 0
 
 const LABEL_SIZE_TH = 6
 
+const LINK_FONT_ICON = ' \uD83D\uDD17'
+
 // TODO: Manage these states in React way
 let currentDepth = 0
 
@@ -209,7 +211,7 @@ const addLabels = (container, data) => {
     .style('fill', d => getLabelColor(d))
     .style('text-anchor', 'middle')
     .attr('class', 'label')
-    .text(d => d.data.data.Label)
+    .text(d => getLabelText(d.data.data.Label, d.data.data))
     .style('font-size', d => createSizeMap(d))
     .style('display', 'none')
   // .call(getLabels)
@@ -224,6 +226,19 @@ const getLabelColor = d => {
   } else {
     return '#FFFFFF'
   }
+}
+
+const getLabelText = (text, data) => {
+  let label = text
+  if (data.props.Hidden) {
+    if (data.NodeType === 'Gene') {
+      label = text
+    } else {
+      label = text + LINK_FONT_ICON
+    }
+  }
+
+  return label
 }
 
 const addCircles = (container, data) => {
