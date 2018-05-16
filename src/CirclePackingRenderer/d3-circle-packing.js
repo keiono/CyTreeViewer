@@ -9,7 +9,7 @@ import getSvg from './svg-container-factory'
 import getRoot from './hierarchy-factory'
 import getLabels from './label-factory'
 
-const colorMapper = getColorMap()
+let colorMapper = null
 const MARGIN = 50
 
 const MAX_DEPTH = 3
@@ -60,6 +60,8 @@ const labelSizeMap = new Map()
 
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
+
+  colorMapper = getColorMap(props.rendererOptions.rootColor, props.rendererOptions.leafColor)
   const svg = getSvg(svgTree, width1, height1)
 
   width = width1
