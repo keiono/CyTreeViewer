@@ -521,7 +521,7 @@ export const selectNodes = selected => {
   const selected2 = d3Selection.selectAll(selectedCircles)
   console.log(selected2)
 
-  selected2.style('fill', 'red').style('display', 'inline')
+  // selected2.style('fill', 'red').style('display', 'inline')
 }
 
 export default CirclePacking
