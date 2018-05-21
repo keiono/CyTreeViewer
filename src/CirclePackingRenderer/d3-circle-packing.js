@@ -507,7 +507,7 @@ const handleMouseOver = (d, i, nodes, props) => {
 }
 
 export const selectNodes = selected => {
-  if (selected === null) {
+  if (selected === null || selected === undefined || selected.length === 0) {
     return
   }
 
