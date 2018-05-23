@@ -1,13 +1,10 @@
 import * as d3Selection from 'd3-selection'
-import * as d3Interpolate from 'd3-interpolate'
 import * as d3Hierarchy from 'd3-hierarchy'
-import * as d3Transition from 'd3-transition'
 import * as d3Zoom from 'd3-zoom'
 
 import getColorMap from './colormap-generator'
 import getSvg from './svg-container-factory'
 import getRoot from './hierarchy-factory'
-import getLabels from './label-factory'
 
 let colorMapper = null
 const MARGIN = 50
@@ -61,7 +58,10 @@ const labelSizeMap = new Map()
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
 
-  colorMapper = getColorMap(props.rendererOptions.rootColor, props.rendererOptions.leafColor)
+  colorMapper = getColorMap(
+    props.rendererOptions.rootColor,
+    props.rendererOptions.leafColor
+  )
   const svg = getSvg(svgTree, width1, height1)
 
   width = width1
@@ -92,7 +92,9 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
     .size([diameter - MARGIN, diameter - MARGIN])
     .padding(1)
 
-  let nodes = pack(root).descendants()
+  const rootNode =pack(root)
+  let nodes = rootNode.descendants()
+
   nodeCount = nodes.length
 
   const zoom2 = d3Zoom
@@ -106,7 +108,6 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   svg.on('dblclick.zoom', null)
 
   circle = addCircles(g, nodes)
-
   addLabels(g, nodes)
 
   // Now label map is available.
@@ -141,6 +142,8 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
     if (root === undefined) return
 
+    console.log('RT------------------', root, d, nodes)
+
     currentDepth = MAX_DEPTH
 
     // Reset
@@ -155,6 +158,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
     zoom(root)
   })
+
 
   const initialPosition = [root.x, root.y, root.r * 2 + MARGIN]
   zoomTo(initialPosition)
@@ -243,6 +247,28 @@ const getLabelText = (text, data) => {
   return label
 }
 
+const expand = (d, i, nodes) => {
+
+  if (selectedCircle !== undefined) {
+    selectedCircle.classed('node-selected', false)
+  }
+
+  // Reset sub-selection
+  subSelected.forEach(v => {
+    v.classed('node-selected-sub', false)
+  })
+  subSelected.clear()
+
+  // Change border
+  selectedCircle = d3Selection.select(nodes[i])
+  selectedCircle.classed('node-selected', true)
+
+  if (focus !== d) {
+    zoom(d)
+    d3Selection.event.stopPropagation()
+  }
+}
+
 const addCircles = (container, data) => {
   return container
     .selectAll('circle')
@@ -253,7 +279,9 @@ const addCircles = (container, data) => {
     .attr('id', d => 'c' + d.data.id)
     .attr('class', function(d) {
       return d.parent
-        ? d.children ? 'node' : 'node node--leaf'
+        ? d.children
+          ? 'node'
+          : 'node node--leaf'
         : 'node node--root'
     })
     .style('display', function(d) {
@@ -266,7 +294,6 @@ const addCircles = (container, data) => {
       } else {
         return 'none'
       }
-      // return d.parent === root && d.children !== undefined ? 'inline' : 'none'
     })
     .style('fill', function(d) {
       const data = d.data.data
@@ -295,24 +322,7 @@ const addCircles = (container, data) => {
         return
       }
 
-      if (selectedCircle !== undefined) {
-        selectedCircle.classed('node-selected', false)
-      }
-
-      // Reset sub-selection
-      subSelected.forEach(v => {
-        v.classed('node-selected-sub', false)
-      })
-      subSelected.clear()
-
-      // Change border
-      selectedCircle = d3Selection.select(nodes[i])
-      selectedCircle.classed('node-selected', true)
-
-      if (focus !== d) {
-        zoom(d)
-        d3Selection.event.stopPropagation()
-      }
+      expand(d, i, nodes)
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
     .on('mouseout', (d, i, nodes) => {
@@ -359,7 +369,6 @@ const addCircles = (container, data) => {
         }
       }
     })
-    .on('click', (d, i, nodes) => {})
 }
 
 const selectCurrentNodes = (nodes, type) => {
