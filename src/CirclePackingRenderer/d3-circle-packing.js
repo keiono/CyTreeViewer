@@ -419,7 +419,8 @@ const zoom = d => {
         return 'none'
       }
 
-      if(d === focus || (d.height === focus.height && d.depth === focus.depth)) {
+      if(d === focus ||
+        (d.parent === focus.parent)) {
         return 'inline'
       }
 
