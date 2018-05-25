@@ -248,6 +248,7 @@ const getLabelText = (text, data) => {
 }
 
 const expand = (d, i, nodes) => {
+  console.log("EXP--------", d)
 
   if (selectedCircle !== undefined) {
     selectedCircle.classed('node-selected', false)
@@ -416,6 +417,10 @@ const zoom = d => {
       // Avoid showing
       if (d === focus && d.height !== 0) {
         return 'none'
+      }
+
+      if(d === focus || (d.height === focus.height && d.depth === focus.depth)) {
+        return 'inline'
       }
 
       if (focus.children !== undefined && focus.children.length < 100) {
