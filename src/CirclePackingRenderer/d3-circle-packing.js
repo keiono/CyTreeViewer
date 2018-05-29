@@ -226,6 +226,9 @@ const addLabels = (container, data) => {
 const getLabelColor = d => {
   const data = d.data.data
 
+  if (data.NodeType === 'Gene') {
+    return '#222222'
+  }
   // This is a hidden node.
   if (data.props.Hidden === true) {
     return '#222222'
@@ -240,7 +243,7 @@ const getLabelText = (text, data) => {
     if (data.NodeType === 'Gene') {
       label = text
     } else {
-      label = text + LINK_FONT_ICON
+      label = text
     }
   }
 
@@ -303,8 +306,8 @@ const addCircles = (container, data) => {
       if (data.props.Hidden === true) {
         if (data.NodeType !== 'Gene') {
           return '#DDDDDD'
-        } else {
-          return '#238b45'
+        // } else {
+        //   return '#238b45'
         }
       }
 
@@ -419,7 +422,8 @@ const zoom = d => {
         return 'none'
       }
 
-      if(d === focus || (d.height === focus.height && d.depth === focus.depth)) {
+      if(d === focus ||
+        (d.height === focus.height && d.depth === focus.depth)) {
         return 'inline'
       }
 
