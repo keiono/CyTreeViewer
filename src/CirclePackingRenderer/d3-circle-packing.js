@@ -55,6 +55,8 @@ let sizeTh = 0
 
 const labelSizeMap = new Map()
 
+let svg = null
+
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
 
@@ -62,7 +64,8 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
     props.rendererOptions.rootColor,
     props.rendererOptions.leafColor
   )
-  const svg = getSvg(svgTree, width1, height1)
+
+  svg = getSvg(svgTree, width1, height1)
 
   width = width1
   height = height1
@@ -92,7 +95,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
     .size([diameter - MARGIN, diameter - MARGIN])
     .padding(1)
 
-  const rootNode =pack(root)
+  const rootNode = pack(root)
   let nodes = rootNode.descendants()
 
   nodeCount = nodes.length
@@ -140,9 +143,10 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   labels = g.selectAll('.label')
 
   svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
-    if (root === undefined) return
 
-    console.log('RT------------------', root, d, nodes)
+    if (root === undefined || d === undefined) return
+
+    console.log('Reset called: ', root, d, nodes)
 
     currentDepth = MAX_DEPTH
 
@@ -151,14 +155,10 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
       .translate(props.width / 2, props.height / 2)
       .scale(1)
 
-    svg
-      // .transition()
-      // .duration(750)
-      .call(zoom2.transform, trans)
+    svg.call(zoom2.transform, trans)
 
     zoom(root)
   })
-
 
   const initialPosition = [root.x, root.y, root.r * 2 + MARGIN]
   zoomTo(initialPosition)
@@ -251,8 +251,6 @@ const getLabelText = (text, data) => {
 }
 
 const expand = (d, i, nodes) => {
-  console.log("EXP--------", d)
-
   if (selectedCircle !== undefined) {
     selectedCircle.classed('node-selected', false)
   }
@@ -422,8 +420,7 @@ const zoom = d => {
         return 'none'
       }
 
-      if(d === focus ||
-        (d.height === focus.height && d.depth === focus.depth)) {
+      if (d === focus || d.parent === focus.parent) {
         return 'inline'
       }
 
