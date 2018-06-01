@@ -517,8 +517,8 @@ const zoomTo = v => {
 
 const handleMouseOver = (d, i, nodes, props) => {
   setTimeout(() => {
-    props.eventHandlers.hoverOnNode(d.data.id, d.data.data)
-  }, 10)
+    props.eventHandlers.hoverOnNode(d.data.id, d.data.data, d.parent)
+  }, 7)
 }
 
 export const selectNodes = selected => {
@@ -534,9 +534,7 @@ export const selectNodes = selected => {
     )
 
   const selected2 = d3Selection.selectAll(selectedCircles)
-  console.log(selected2)
-
-  // selected2.style('fill', 'red').style('display', 'inline')
+  selected2.style('fill', 'red').style('display', 'inline')
 }
 
 export default CirclePacking
