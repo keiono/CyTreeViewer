@@ -518,7 +518,7 @@ const zoomTo = v => {
 const handleMouseOver = (d, i, nodes, props) => {
   setTimeout(() => {
     props.eventHandlers.hoverOnNode(d.data.id, d.data.data, d.parent)
-  }, 7)
+  }, 2)
 }
 
 export const selectNodes = selected => {
