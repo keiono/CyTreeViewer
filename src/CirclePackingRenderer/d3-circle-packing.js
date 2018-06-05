@@ -145,7 +145,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
 
-    if (root === undefined) return
+    if (root === undefined || d === undefined) return
 
     console.log('Reset called: ', root, d, nodes)
 
@@ -525,7 +525,7 @@ const handleMouseOver = (d, i, nodes, props) => {
 
 let selectedGroups = null
 
-export const selectNodes = (selected, fillColor = 'orange') => {
+export const selectNodes = (selected, fillColor = 'red') => {
   if (selected === null || selected === undefined || selected.length === 0) {
     return
   }
@@ -541,9 +541,6 @@ export const selectNodes = (selected, fillColor = 'orange') => {
   selectedGroups.style('fill', fillColor).style('display', 'inline')
 }
 
-export const deselectAllNodes = () => {
-
-}
 
 export const fit = () => {
   currentDepth = MAX_DEPTH
@@ -558,9 +555,12 @@ export const fit = () => {
 }
 
 export const clear = () => {
+  console.log("CLR: ", selectedGroups)
   if(selectedGroups === null) {
     return
   }
+
+  console.log("DONE ", selectedGroups)
 
   selectedGroups.style('fill', function(d) {
     const data = d.data.data
