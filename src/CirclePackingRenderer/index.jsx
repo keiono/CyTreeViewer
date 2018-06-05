@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import CirclePacking, { selectNodes } from './d3-circle-packing'
+import CirclePacking, { selectNodes, fit, clear } from './d3-circle-packing'
 
 /**
  * React component version of circle packing
@@ -35,6 +35,18 @@ class CirclePackingRenderer extends Component {
         nextProps.height,
         nextProps
       )
+    }
+
+
+    const command = nextProps.command
+    if(command !== null && command !== this.props.command) {
+      console.log('## Command: ', command)
+
+      if(command.command === 'fit') {
+        fit()
+      } else if(command.command === 'reset') {
+        clear()
+      }
     }
 
     if (nextProps.selected === null) {

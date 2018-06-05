@@ -56,6 +56,7 @@ let sizeTh = 0
 const labelSizeMap = new Map()
 
 let svg = null
+let zoom2 = null
 
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
@@ -100,7 +101,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   nodeCount = nodes.length
 
-  const zoom2 = d3Zoom
+  zoom2 = d3Zoom
     .zoom()
     .scaleExtent([1 / 10, 500])
     .on('zoom', zoomed2)
@@ -144,7 +145,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
 
   svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
 
-    if (root === undefined || d === undefined) return
+    if (root === undefined) return
 
     console.log('Reset called: ', root, d, nodes)
 
@@ -521,7 +522,10 @@ const handleMouseOver = (d, i, nodes, props) => {
   }, 2)
 }
 
-export const selectNodes = selected => {
+
+let selectedGroups = null
+
+export const selectNodes = (selected, fillColor = 'orange') => {
   if (selected === null || selected === undefined || selected.length === 0) {
     return
   }
@@ -533,8 +537,50 @@ export const selectNodes = selected => {
         previousValue + ', ' + currentValue
     )
 
-  const selected2 = d3Selection.selectAll(selectedCircles)
-  selected2.style('fill', 'red').style('display', 'inline')
+  selectedGroups = d3Selection.selectAll(selectedCircles)
+  selectedGroups.style('fill', fillColor).style('display', 'inline')
+}
+
+export const deselectAllNodes = () => {
+
+}
+
+export const fit = () => {
+  currentDepth = MAX_DEPTH
+
+  const trans = d3Zoom.zoomIdentity
+    .translate(width / 2, height / 2)
+    .scale(1)
+
+  svg.call(zoom2.transform, trans)
+
+  zoom(root)
+}
+
+export const clear = () => {
+  if(selectedGroups === null) {
+    return
+  }
+
+  selectedGroups.style('fill', function(d) {
+    const data = d.data.data
+
+    // This is a hidden node.
+    if (data.props.Hidden === true) {
+      if (data.NodeType !== 'Gene') {
+        return '#DDDDDD'
+      }
+    }
+
+    if (d.children) {
+      return colorMapper(d.depth)
+    } else {
+      if (data.NodeType !== 'Gene') {
+        return colorMapper(d.depth)
+      }
+      return 'rgba(255, 255, 255, 0.3)'
+    }
+  })
 }
 
 export default CirclePacking
