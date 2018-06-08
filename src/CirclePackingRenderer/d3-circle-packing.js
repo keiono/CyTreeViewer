@@ -345,12 +345,10 @@ const addCircles = (container, data) => {
 
         // CTR-Click means multiple selection in the current circle.
         const newSelection = d3Selection.select(nodes[i])
-        console.log(subSelected, newSelection)
+        console.log('### Sub & new selection:', subSelected, newSelection)
 
-        // ID of new Circle
+        // ID of new Circle (subsystem)
         const newId = d.data.id
-
-        console.log('New Selected: ', newId)
 
         // Toggle selection.
         if (subSelected.has(newId)) {
