@@ -329,13 +329,9 @@ const addCircles = (container, data) => {
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
     .on('mouseout', (d, i, nodes) => {
-      setTimeout(() => {
-        props.eventHandlers.hoverOutNode(d.data.id, d.data.data.props)
-      }, 0)
+      props.eventHandlers.hoverOutNode(d.data.id, d.data.data.props)
     })
     .on('contextmenu', (d, i, nodes) => {
-      console.log('#Circle CM selection: ', d)
-
       if (d === undefined) {
         return
       }
@@ -345,20 +341,17 @@ const addCircles = (container, data) => {
 
         // CTR-Click means multiple selection in the current circle.
         const newSelection = d3Selection.select(nodes[i])
-        console.log('### Sub & new selection:', subSelected, newSelection)
 
         // ID of new Circle (subsystem)
         const newId = d.data.id
 
         // Toggle selection.
         if (subSelected.has(newId)) {
-          console.log('!!! Already Selected: ', newId)
           subSelected.delete(newId)
 
           newSelection.classed('node-selected-sub', false)
         } else {
           // New selection
-          console.log('!!! Selected: ', newId)
           subSelected.set(newId, newSelection)
           newSelection.classed('node-selected-sub', true)
 
@@ -366,8 +359,9 @@ const addCircles = (container, data) => {
 
           // props.eventHandlers.selectNode(d.data.id, d.data.data.props, false)
 
-          props.eventHandlers.selectNodes(d.data.id, d.data.data.props, false)
         }
+
+        props.eventHandlers.selectNodes(d.data.id, d.data.data.props)
       }
     })
 }
@@ -496,7 +490,6 @@ const zoom = d => {
 
   setTimeout(() => {
     if (d !== root) {
-      console.log('* Circle selected: ', d.data.data.props.Label)
       props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
     }
   }, TRANSITION_DURATION + 10)
@@ -553,12 +546,9 @@ export const fit = () => {
 }
 
 export const clear = () => {
-  console.log("CLR: ", selectedGroups)
   if(selectedGroups === null) {
     return
   }
-
-  console.log("DONE ", selectedGroups)
 
   selectedGroups.style('fill', function(d) {
     const data = d.data.data
