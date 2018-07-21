@@ -1,5 +1,5 @@
 import * as d3Selection from 'd3-selection'
-import * as d3Hierarchy from 'd3-hierarchy'
+import * as d3Hierarchy from './CustomCirclePacking'
 import * as d3Zoom from 'd3-zoom'
 
 import getColorMap from './colormap-generator'
@@ -96,7 +96,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
     .size([diameter - MARGIN, diameter - MARGIN])
     .padding(1)
 
-  const rootNode = pack(root)
+  let rootNode = pack(root)
   let nodes = rootNode.descendants()
 
   nodeCount = nodes.length
@@ -288,6 +288,7 @@ const addCircles = (container, data) => {
         : 'node node--root'
     })
     .style('display', function(d) {
+
       if (d.parent === focus) {
         currentSet.add(d)
       }
@@ -304,7 +305,7 @@ const addCircles = (container, data) => {
       // This is a hidden node.
       if (data.props.Hidden === true) {
         if (data.NodeType !== 'Gene') {
-          return '#DDDDDD'
+          return 'orange'
         // } else {
         //   return '#238b45'
         }
@@ -325,6 +326,7 @@ const addCircles = (container, data) => {
         return
       }
 
+      console.log('----------EXPAND---------', d, i)
       expand(d, i, nodes)
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
@@ -468,8 +470,9 @@ const zoom = d => {
     // Set current depth for later use
     currentDepth = focus.depth
 
-    // Case 1: Genes
-    if (d === focus) {
+    // Case 1: Genes or Hidden
+    if (d === focus || d.data.data.props.alias) {
+      console.log('ALIAS')
       return 'inline'
     }
 
