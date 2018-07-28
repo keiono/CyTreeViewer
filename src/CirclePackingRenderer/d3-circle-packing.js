@@ -9,16 +9,8 @@ import getRoot from './hierarchy-factory'
 
 let colorMapper = null
 const MARGIN = 50
-
 const MAX_DEPTH = 3
-
 const TRANSITION_DURATION = 400
-
-const SHOW_LABEL_TH = 0
-
-const LABEL_SIZE_TH = 6
-
-const LINK_FONT_ICON = ' \uD83D\uDD17'
 
 // TODO: Manage these states in React way
 let currentDepth = 0
@@ -58,6 +50,7 @@ const labelSizeMap = new Map()
 
 let svg = null
 let zoom2 = null
+
 
 const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   props = originalProps
@@ -143,24 +136,7 @@ const CirclePacking = (tree, svgTree, width1, height1, originalProps) => {
   node = g.selectAll('circle,text')
   circleNodes = g.selectAll('circle')
   labels = g.selectAll('.label')
-
-  svg.style('background', 'white').on('dblclick', (d, i, nodes) => {
-
-    if (root === undefined || d === undefined) return
-
-    console.log('Reset called: ', root, d, nodes)
-
-    currentDepth = MAX_DEPTH
-
-    // Reset
-    const trans = d3Zoom.zoomIdentity
-      .translate(props.width / 2, props.height / 2)
-      .scale(1)
-
-    svg.call(zoom2.transform, trans)
-
-    zoom(root)
-  })
+  svg.style('background', '#FFFFFF')
 
   const initialPosition = [root.x, root.y, root.r * 2 + MARGIN]
   zoomTo(initialPosition)
@@ -219,7 +195,7 @@ const addLabels = (container, data) => {
     .style('fill', d => getLabelColor(d))
     .style('text-anchor', 'middle')
     .attr('class', 'label')
-    .text(d => getLabelText(d.data.data.Label, d.data.data))
+    .text(d => d.data.data.Label)
     .style('font-size', d => createSizeMap(d))
     .style('display', 'none')
   // .call(getLabels)
@@ -239,20 +215,10 @@ const getLabelColor = d => {
   }
 }
 
-const getLabelText = (text, data) => {
-  let label = text
-  if (data.props.Hidden) {
-    if (data.NodeType === 'Gene') {
-      label = text
-    } else {
-      label = text
-    }
-  }
-
-  return label
-}
 
 const expand = (d, i, nodes) => {
+  console.log('EXPAND0: ', selectedCircle)
+
   if (selectedCircle !== undefined) {
     selectedCircle.classed('node-selected', false)
   }
@@ -263,11 +229,16 @@ const expand = (d, i, nodes) => {
   })
   subSelected.clear()
 
+
   // Change border
   selectedCircle = d3Selection.select(nodes[i])
   selectedCircle.classed('node-selected', true)
 
-  if (focus !== d) {
+  console.log('EXPAND1: ', selectedCircle, focus)
+
+  if (focus !== d || !focus.parent) {
+    console.log('EXPAND2Zoom: ', selectedCircle, focus)
+
     zoom(d)
     d3Selection.event.stopPropagation()
   }
@@ -276,7 +247,6 @@ const expand = (d, i, nodes) => {
 const addCircles = (container, data) => {
   return container
     .selectAll('circle')
-
     .data(data)
     .enter()
     .append('circle')
@@ -286,7 +256,7 @@ const addCircles = (container, data) => {
         ? d.children
           ? 'node'
           : 'node node--leaf'
-        : 'node node--root'
+        : 'node'
     })
     .style('display', function(d) {
 
@@ -323,6 +293,9 @@ const addCircles = (container, data) => {
       }
     })
     .on('dblclick', (d, i, nodes) => {
+      console.log('----------DBL ---------', d, i)
+      console.log('target', nodes[i])
+
       if (d === undefined) {
         return
       }
@@ -376,37 +349,7 @@ const selectCurrentNodes = (nodes, type) => {
 
 const zoom = d => {
   // Update current focus
-
-  const lastFocus = focus
-
   focus = d
-
-  // if (nodeCount < 10000) {
-  //   const transition = d3Transition
-  //     .transition()
-  //     .duration(TRANSITION_DURATION)
-  //     .tween('zoom', d => {
-  //       const i = d3Interpolate.interpolateZoom(view, [
-  //         focus.x,
-  //         focus.y,
-  //         focus.r * 2 + MARGIN
-  //       ])
-  //
-  //       return t => {
-  //         zoomTo(i(t))
-  //       }
-  //     })
-  //
-  //   transition.selectAll('.label').on('end', function(d) {
-  //     if (d.parent !== focus) {
-  //       this.style.display = 'none'
-  //     }
-  //     if (d.parent === focus) {
-  //       this.style.display = 'inline'
-  //     }
-  //   })
-  //
-  // } else {
 
   labels
     .attr('y', d => getFontSize(d) / 2)
@@ -447,25 +390,7 @@ const zoom = d => {
       //   return 'none'
       // }
     })
-
     .style('font-size', d => getFontSize(d))
-
-  // Select next nodes from children of the new focus!
-
-  // const nextNodes = focus.children
-  // console.log(nextNodes, circleNodes)
-
-  // t0 = performance.now()
-
-  // const childIds = focus.children.map(node => '#c' + node.data.id).join(', ')
-  // const childrenSelected = d3Selection.selectAll(childIds)
-
-  // lastSelection = focus.children
-
-  // t2 = performance.now()
-
-  // console.log('########### Selection Done in ' + (t2 - t0))
-  // }
 
   circleNodes.style('display', d => {
     // Set current depth for later use
@@ -493,9 +418,7 @@ const zoom = d => {
   })
 
   setTimeout(() => {
-    if (d !== root) {
-      props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
-    }
+    props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
   }, TRANSITION_DURATION + 10)
 }
 
