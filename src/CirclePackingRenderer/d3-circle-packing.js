@@ -217,8 +217,6 @@ const getLabelColor = d => {
 
 
 const expand = (d, i, nodes) => {
-  console.log('EXPAND0: ', selectedCircle)
-
   if (selectedCircle !== undefined) {
     selectedCircle.classed('node-selected', false)
   }
@@ -234,11 +232,8 @@ const expand = (d, i, nodes) => {
   selectedCircle = d3Selection.select(nodes[i])
   selectedCircle.classed('node-selected', true)
 
-  console.log('EXPAND1: ', selectedCircle, focus)
 
   if (focus !== d || !focus.parent) {
-    console.log('EXPAND2Zoom: ', selectedCircle, focus)
-
     zoom(d)
     d3Selection.event.stopPropagation()
   }
@@ -293,14 +288,10 @@ const addCircles = (container, data) => {
       }
     })
     .on('dblclick', (d, i, nodes) => {
-      console.log('----------DBL ---------', d, i)
-      console.log('target', nodes[i])
-
       if (d === undefined) {
         return
       }
 
-      console.log('----------EXPAND---------', d, i)
       expand(d, i, nodes)
     })
     .on('mouseover', (d, i, nodes) => handleMouseOver(d, i, nodes, props))
@@ -397,8 +388,7 @@ const zoom = d => {
     currentDepth = focus.depth
 
     // Case 1: Genes or Hidden
-    if (d === focus || d.data.data.props.alias) {
-      console.log('ALIAS')
+    if (d === focus) {
       return 'inline'
     }
 
@@ -435,9 +425,7 @@ const zoomTo = v => {
 }
 
 const handleMouseOver = (d, i, nodes, props) => {
-  setTimeout(() => {
-    props.eventHandlers.hoverOnNode(d.data.id, d.data.data, d.parent)
-  }, 2)
+  props.eventHandlers.hoverOnNode(d.data.id, d.data.data, d.parent)
 }
 
 
