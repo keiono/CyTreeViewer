@@ -40,7 +40,6 @@ class CirclePackingRenderer extends Component {
 
     const command = nextProps.command
     if(command !== null && command !== this.props.command) {
-      console.log('## Command: ', command)
 
       if(command.command === 'fit') {
         fit()

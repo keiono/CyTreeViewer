@@ -407,9 +407,7 @@ const zoom = d => {
     }
   })
 
-  setTimeout(() => {
-    props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
-  }, TRANSITION_DURATION + 10)
+  props.eventHandlers.selectNode(d.data.id, d.data.data.props, true)
 }
 
 const zoomTo = v => {

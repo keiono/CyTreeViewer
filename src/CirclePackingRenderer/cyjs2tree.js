@@ -10,10 +10,6 @@ const cyjs2tree = cyjs => {
 
   const table = transform(edges)
 
-  console.log("++++++++++++++ Original data ++++++++++")
-  console.log(elements)
-
-
   return d3Hierarchy
     .stratify()
     .id(function(d) {
