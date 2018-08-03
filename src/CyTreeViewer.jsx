@@ -23,8 +23,14 @@ const DEF_EVENT_HANDLERS = Immutable.fromJS({
     console.log(nodeId)
   },
 
-  deselectNode: nodeId => {
+  deselectNode: (nodeId, properties = {}) => {
     console.log('deselectNode called.')
+  },
+
+  deselectNodes: (nodeIds, properties = {}) => {
+    console.log('Deselect multiple nodes called.')
+    console.log(nodeIds)
+    console.log(properties)
   },
 
   commandFinished: (lastCommand, status = {}) => {

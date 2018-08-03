@@ -317,6 +317,9 @@ const addCircles = (container, data) => {
           subSelected.delete(newId)
 
           newSelection.classed('node-selected-sub', false)
+          props.eventHandlers.deselectNode(newId, d.data.data.props)
+
+          return
         } else {
           // New selection
           subSelected.set(newId, newSelection)
