@@ -46,13 +46,13 @@
     "d3-zoom": "^1.7.1"
   },
   "peerDependencies": {
-    "immutable": "^3.8.2",
-    "prop-types": "^15.6.1",
-    "react": "^16.3.2"
+    "immutable": "3.8.2",
+    "prop-types": "15.6.1",
+    "react": "16.3.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
+    "babel-cli": "6.26.0",
+    "babel-core": "6.26.3",
     "babel-eslint": "^8.2.3",
     "babel-jest": "^22.4.3",
     "babel-loader": "^7.1.4",
@@ -68,8 +68,8 @@
     "jest": "^21.2.1",
     "jest-webpack-alias": "^3.3.3",
     "prettier": "^1.12.1",
-    "prop-types": "^15.6.1",
-    "react": "^16.3.2",
+    "prop-types": "15.6.1",
+    "react": "16.3.2",
     "regenerator-runtime": "^0.11.1",
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.3"

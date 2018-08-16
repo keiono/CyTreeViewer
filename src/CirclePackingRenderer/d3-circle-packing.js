@@ -284,7 +284,7 @@ const addCircles = (container, data) => {
           return colorMapper(d.depth)
         }
 
-        return 'rgba(255, 255, 255, 0.3)'
+        return 'rgba(255, 255, 255, 0.8)'
       }
     })
     .on('dblclick', (d, i, nodes) => {
@@ -351,6 +351,12 @@ const zoom = d => {
       // Avoid showing
       if (d === focus && d.height !== 0) {
         return 'none'
+      }
+
+
+      // Gene
+      if (d.data.NodeType === 'Gene') {
+        return 'inline'
       }
 
       if (d === focus || d.parent === focus.parent) {
